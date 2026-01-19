@@ -121,23 +121,19 @@ export const saveRouteToDatabase = async (routeData) => {
     const end_lat = end_coords.lat;
     const end_lng = end_coords.lng;
 
-    // --- NEW: EXTRACT USER INFO ---
     const userImage = user.picture || user.photoURL || "";
     const userName = user.name || "User";
 
-    /* ---------------- 1. USER ACTIVE ---------------- */
     await set(ref(db, `women/user_active/${user_id}`), {
       routeId: route_id,
       start: { start_lat, start_lng },
       end: { end_lat, end_lng },
       current: { start_lat, start_lng },
       status: "active",
-      // ADDED HERE
       userImage: userImage, 
       userName: userName
     });
 
-    /* ---------------- 2. ROUTE ---------------- */
     const routeRef = ref(db, `women/routes/${route_id}`);
     const routeSnap = await get(routeRef);
 
@@ -157,7 +153,6 @@ export const saveRouteToDatabase = async (routeData) => {
       });
     }
 
-    /* ---------------- 3. ROOM ---------------- */
     const roomRef = ref(db, `women/rooms/${route_id}`);
     const roomSnap = await get(roomRef);
 
@@ -168,19 +163,16 @@ export const saveRouteToDatabase = async (routeData) => {
       });
     }
 
-    /* ---------------- 4. ROOM MEMBER ---------------- */
     await set(ref(db, `women/rooms/${route_id}/members/${user_id}`), {
       joinedAt: Date.now(),
       current_lat: start_lat,
       current_lng: start_lng,
       status: "active",
-      // ADDED HERE (Vital for Map visualization)
       userImage: userImage,
       userName: userName,
       travelmode: travel_mode
     });
 
-    /* ---------------- 5. LOCAL ROOM CLUSTERING ---------------- */
     const localRoomsRef = ref(db, "women/localroom");
     const localRoomsSnap = await get(localRoomsRef);
 
@@ -231,7 +223,6 @@ export const saveRouteToDatabase = async (routeData) => {
       });
     }
 
-    /* ---------------- 6. BACKEND NOTIFY ---------------- */
     await api.post(
       `/api/room/room_data`,
       { roomId: route_id, userId: user_id },
