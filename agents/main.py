@@ -36,6 +36,7 @@ class ThrottleRequest(BaseModel):
     routeId: str
     message: List[FrontendMessage] 
 
+
 # --- ENDPOINTS ---
 
 @app.post("/agent1")
@@ -90,7 +91,6 @@ async def throttle_push(req: ThrottleRequest):
     except Exception as e:
         print(f"Error in throttle agent: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
