@@ -29,6 +29,7 @@ class Location(BaseModel):
     lng: float
 
 class AgentState(TypedDict):
+    userId:str
     imageUrl: str
     location: Location
     address: str
@@ -36,8 +37,11 @@ class AgentState(TypedDict):
     interests: List[str]
     description:str
     reportId:str
+    geohash:str
     locality_imageUrl=Optional[str]
     locality_email=Optional[str]
+    locality_userId=Optional[str]
+
 
     water_analysis: Optional[AgentAnalysis]
     waste_analysis: Optional[AgentAnalysis]
@@ -49,7 +53,7 @@ class AgentState(TypedDict):
     assigned_category: Optional[ReportCategory]
     status: ReportStatus
     route:str
-    save:Literal["SAVE","UPDATE"]
+    tool:Literal["SAVE","UPDATE"]
     
     upvotes: int
     downvotes: int

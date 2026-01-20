@@ -1,6 +1,7 @@
 import os
-from typing import List, Dict
-from fastapi import FastAPI, HTTPException
+import jwt  # Ensure you have installed 'pyjwt' (pip install pyjwt)
+from typing import List, Dict, Optional  # [CHANGE 1: Added Optional]
+from fastapi import FastAPI, HTTPException, Header, Depends # [CHANGE 2: Added Header, Depends]
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, RootModel
 from langchain_core.messages import AIMessage
@@ -15,10 +16,10 @@ app = FastAPI()
 # --- CORS MIDDLEWARE ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],           # Allows all origins for debugging
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],           # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],           # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- REQUEST SCHEMAS ---
@@ -36,8 +37,69 @@ class ThrottleRequest(BaseModel):
     routeId: str
     message: List[FrontendMessage] 
 
+# [CHANGE 3: Defined LocationModel before usage]
+class LocationModel(BaseModel):
+    lat: float
+    lng: float
+
+class ReportRequest(BaseModel):
+    imageUrl: str
+    description: Optional[str] = ""
+    location: LocationModel
+    address: str
+    status: str
+    geohash:str
+
+# --- AUTH HELPER ---
+def get_user_from_token(authorization: str = Header(...)):
+    try:
+        token = authorization.split(" ")[1]
+        payload = jwt.decode(token, options={"verify_signature": False})
+        
+        return {
+            "userId": payload.get("sub"),
+            "email": payload.get("email"),
+            "name": payload.get("name")
+        }
+    except Exception as e:
+        print(f"Token Error: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Token")
 
 # --- ENDPOINTS ---
+
+@app.post("/reports")
+async def create_report(
+    req: ReportRequest, 
+    user_info: dict = Depends(get_user_from_token) 
+):
+    try:
+        secure_user_id = user_info["userId"]
+        secure_email = user_info["email"]
+
+        print(f"Secure Report from: {secure_email}")
+        
+        initial_report_state = {
+            "imageUrl": req.imageUrl,
+            "description": req.description,
+            "location": {"lat": req.location.lat, "lng": req.location.lng},
+            "geohash": req.geohash,
+            "address": req.address,
+            "userId": secure_user_id, # From Token
+            "email": secure_email,    # From Token
+            "status": req.status
+        }
+        
+        # [CHANGE 4: Added return statement to complete the function]
+        # TODO: Invoke your report agent here in the future
+        return {
+            "status": "success",
+            "message": "Report received successfully",
+            "report_id": "temp_id" 
+        }
+
+    except Exception as e:
+        print(f"Error in Report Endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/agent1")
 async def chat_endpoint(req: ChatRequest):
@@ -91,6 +153,7 @@ async def throttle_push(req: ThrottleRequest):
     except Exception as e:
         print(f"Error in throttle agent: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))

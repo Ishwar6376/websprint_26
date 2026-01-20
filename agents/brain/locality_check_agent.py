@@ -10,7 +10,8 @@ def locality_check_agent(state:AgentState):
         try:
             backend_url=os.getenv("BACKEND_URL","http://localhost:3000")
             response=requests.post(f"{backend_url}/locality/waterCheck",json={
-                "location":state["location"]
+                "location":state["location"],
+                "geohash":state["geohash"]
             },timeout=3)
              
         except Exception as e:return f"Failed{str(e)}"
@@ -21,7 +22,8 @@ def locality_check_agent(state:AgentState):
         try:
             backend_url=os.getenv("BACKEND_URL","http://localhost:3000")
             response=requests.post(f"{backend_url}/locality/infraCheck",json={
-                "location":state["location"]
+               "location":state["location"],
+                "geohash":state["geohash"]
             })
         except Exception as e:return f"Failed{str(e)}"
 
@@ -29,7 +31,8 @@ def locality_check_agent(state:AgentState):
         try:
             backend_url=os.getenv("BACKEND_URL","http://localhost:3000")
             response=requests.post(f"{backend_url}/locality/wasteCheck",json={
-                "location":state["location"]
+                "location":state["location"],
+                "geohash":state["geohash"]
             })
         except Exception as e:return f"Failed{str(e)}"
 
@@ -37,7 +40,8 @@ def locality_check_agent(state:AgentState):
         try:
             backend_url=os.getenv("BACKEND_URL","http://localhost:3000")
             response=requests.post(f"{backend_url}/locality/electricityCheck",json={
-                "location":state["location"]
+                "location":state["location"],
+                "geohash":state["geohash"]
             })
         except Exception as e:return f"Failed{str(e)}"
 

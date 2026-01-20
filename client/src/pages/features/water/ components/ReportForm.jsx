@@ -3,6 +3,8 @@ import { Camera, X, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "../../../../ui/button";
 import { api } from "../../../../lib/api"; 
 import { useAuthStore } from "../../../../store/useAuthStore";
+import { useAuth0 } from "@auth0/auth0-react";
+import geohash from "ngeohash"; 
 
 export default function ReportForm({ userLocation, userAddress, onSubmitSuccess }) {
   const [step, setStep] = useState("idle"); 
@@ -11,13 +13,14 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
   const [description, setDescription] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle"); 
 
+  const { getAccessTokenSilently } = useAuth0(); 
   const user = useAuthStore((state) => state.user);
 
   function generateReportId() {
     return `RPT-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
   }
 
-  // --- 1. Cloudinary Upload (Essential for URL) ---
+  // --- 1. Cloudinary Upload ---
   const uploadToCloudinary = async (file, currentReportId) => {
     setUploadStatus("uploading");
     const formData = new FormData();
@@ -57,28 +60,42 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
     reader.readAsDataURL(file);
   };
 
-  // --- 2. Final Submission (Fire and Forget) ---
+  // --- 2. Final Submission ---
   const handleSubmit = async () => {
-    // We strictly need the Image URL from Cloudinary before we can create a report
     if (!imageUrl) {
         alert("Please wait for the image upload to complete.");
         return;
     }
 
     setStep("submitting");
-    const payload = {
-        imageUrl: imageUrl,           
-        description: description || "", 
-        location: userLocation,       
-        address: userAddress,         
-        status: "INITIATED",          
-        userId: user?.id,             
-    };
-
-    console.log("Handoff to Backend:", payload);
 
     try {
-      const response = await api.post(`${import.meta.env.VITE_API_PYTHON_URL}/reports`, payload);
+      const token = await getAccessTokenSilently();
+
+      // [CHANGED] Level 7 = Approx 150m x 150m blocks.
+      // This is the closest robust size to your 300m request.
+      const geoHashId = geohash.encode(userLocation.lat, userLocation.lng, 7);
+
+      const payload = {
+          imageUrl: imageUrl,           
+          description: description || "", 
+          location: userLocation,
+          geohash: geoHashId, 
+          address: userAddress,         
+          status: "INITIATED",          
+      };
+
+      console.log("Handoff to Backend with Geohash (L7):", payload);
+      
+      const response = await api.post(
+        `${import.meta.env.VITE_API_PYTHON_URL}/reports`, 
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response.status === 200 || response.status === 201) {
         setStep("submitted");
