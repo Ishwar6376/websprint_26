@@ -1,13 +1,17 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "",
+  "description": "Gdg",
+  "keywords": [
+    "Gdg"
+  ],
   "license": "ISC",
-  "description": "",
-    "scripts": {
+  "author": "Team",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
     "dev": "nodemon index.js",
-    "start":"node index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.11.0",
@@ -24,7 +28,7 @@
     "env": "^0.0.2",
     "express": "^5.2.1",
     "express-oauth2-jwt-bearer": "^1.7.2",
-    "firebase": "^12.7.0",
+    "firebase": "^12.8.0",
     "firebase-admin": "^13.6.0",
     "geofire-common": "^6.0.0",
     "multer": "^2.0.2",
