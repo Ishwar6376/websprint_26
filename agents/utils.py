@@ -18,13 +18,9 @@ async def analyze_image_category(
     Sends image + optional user description to Gemini.
     Enforces strict JSON output.
     """
-    
-    # 1. Build the Context
     context_text = "Analyze this image according to your instructions."
     if user_description:
         context_text += f"\n\nUSER REPORT DESCRIPTION: '{user_description}'\n(Use this context if the image is unclear, but prioritize visual evidence.)"
-
-    # 2. Add Formatting Instructions
     formatting_instruction = """
     \nIMPORTANT: You must strictly output ONLY valid JSON. 
     Do not add Markdown formatting (like ```json). 
