@@ -31,7 +31,8 @@ import GarbageAdmin from "./pages/administration/garbage/garbage";
 import WaterComplaintsPage from "./pages/features/water/index"
 import GarbageReports from "./pages/reports/garbage/garbageReport";
 import TrackReport from "./pages/reports/track/TrackReports";
-
+import InfraAdmin from "./pages/administration/muncipal/infra/infra";
+import WasteAdmin from "./pages/administration/muncipal/waste/waste"
 function App() {
   const location = useLocation();
   const showNavbar = ["/", "/mission", "/about"].includes(location.pathname);
@@ -59,7 +60,6 @@ function App() {
             <WaterComplaintsPage/>
           </ProtectedRoute>
         }
-        
         
         />
         
@@ -272,6 +272,23 @@ function App() {
           element={
             <ProtectedRoute>
               <GarbageReports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/administration/municipal/infrastructure"
+          element={
+            <ProtectedRoute >
+              <InfraAdmin />
+            </ProtectedRoute>
+          }
+
+        />
+        <Route
+          path="/administration/municipal/waste"
+          element={
+            <ProtectedRoute >
+              <WasteAdmin />
             </ProtectedRoute>
           }
         />

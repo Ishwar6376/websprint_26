@@ -9,7 +9,7 @@ export const saveWasteReport = async (req, res) => {
         }
         const dataToSave = { ...data };
         delete dataToSave.userId;
-        delete dataToSave.geohash;
+        
         const reportRef = db.collection('wasteReports')
             .doc(geohash)
             .collection('reports')
