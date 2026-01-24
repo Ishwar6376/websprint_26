@@ -13,7 +13,7 @@ load_dotenv()
 if not os.getenv("GOOGLE_API_KEY"):
     raise ValueError("GOOGLE_API_KEY not found!")
 
-  
+flash_model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0, max_retries=2)
 pro_model = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)
 class SentimentScore(BaseModel):
     sentiment_score: float = Field(description="Float 0.0 to 1.0. 0=Hostile/Dangerous, 1=Safe/Supportive")

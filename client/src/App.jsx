@@ -33,6 +33,9 @@ import GarbageReports from "./pages/reports/garbage/garbageReport";
 import TrackReport from "./pages/reports/track/TrackReports";
 import InfraAdmin from "./pages/administration/muncipal/infra/infra";
 import WasteAdmin from "./pages/administration/muncipal/waste/waste"
+import WasteStaffDashboard from "./pages/staff/waste/wasteStaff";
+import AssignTask from "@/pages/administration/muncipal/waste/assignTask"
+
 function App() {
   const location = useLocation();
   const showNavbar = ["/", "/mission", "/about"].includes(location.pathname);
@@ -292,6 +295,28 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+          {/* staff  */}
+          <Route
+          path="/staff/waste"
+          element={
+            <ProtectedRoute >
+              <WasteStaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/assign/waste/:geoHash"
+          element={
+            <ProtectedRoute >
+              <AssignTask />
+            </ProtectedRoute>
+          }
+        />
+
+
+
       </Routes>
     </>
 

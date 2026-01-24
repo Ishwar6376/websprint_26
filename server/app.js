@@ -55,6 +55,15 @@ app.use("/api/municipal",municipalRoute);
 
 
 
+
+
+import staff from "./src/routes/staff.js"
+app.use("/api/staff",staff);
+
+
+import trackReport from "./src/routes/track.route.js"
+app.use("/api/track",trackReport);
+
 app.use('/uploads', express.static('uploads'));
 app.use("/api/chats", chatRoutes);
 app.use("/api/complaints", complaintRoutes);
