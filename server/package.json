@@ -5,9 +5,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
-    "scripts": {
+  "scripts": {
     "dev": "nodemon index.js",
-    "start":"node index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.11.0",
