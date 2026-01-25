@@ -4,16 +4,21 @@ import {
   getDonations,
 } from "../controllers/donation.controller.js";
 import { checkJwt } from "../auth/authMiddleware.js";
+import { upload } from "../../middlewares/upload.js";
 
 const router = express.Router();
 
-// Create a donation
-router.post("/", checkJwt, createDonation);
+router.post(
+  "/",
+  checkJwt,
+  upload.single("image"),
+  createDonation
+);
 
-// Get donations (optionally by category)
 router.get("/", getDonations);
 
 export default router;
+
 
 
 

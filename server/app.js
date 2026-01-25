@@ -18,6 +18,8 @@ import complaintStatsRoutes from "./src/routes/complaintStats.routes.js";
 import complaintHistoryRoutes from "./src/routes/complaintHistory.routes.js";
 import voiceRoutes from "./src/routes/voiceRoutes.js"
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // 🔥 FIXES req.body undefined
 
 /* ---------------- MIDDLEWARE ---------------- */
 
