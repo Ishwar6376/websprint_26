@@ -11,8 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware # ADDED
 from faster_whisper import WhisperModel
 
 app = FastAPI()
-
-# --- 1. CORS ADDED ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,10 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# --- 2. CONFIGURATION MODIFIED ---
-# This allows it to work on Cloud Run without the JSON file, 
-# provided the Service Account has "Firebase Admin" roles.
 try:
     if os.getenv("K_SERVICE"): 
         cred = credentials.ApplicationDefault() # Cloud Native Auth
@@ -35,12 +29,10 @@ try:
         'databaseURL': 'https://urbanflow-41ce2-default-rtdb.firebaseio.com' 
     })
 except ValueError:
-    # App already initialized
     pass
 
 fs_db = firestore.client()
 
-# --- 3. HEALTH CHECK ADDED ---
 @app.get("/")
 def read_root():
     return {"status": "Sentinel Active"}
@@ -69,18 +61,11 @@ class ConnectionManager:
             self.active_connections.remove(websocket)
 
 manager = ConnectionManager()
-
-# --- AUDIO CONVERTER (Int16 -> Float32) ---
 def normalize_audio(audio_bytes):
     audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32)
     return audio_array / 32768.0
-
-# --- TRANSCRIBER WORKER (STRICT FILTERING ADDED) ---
 def transcribe_audio(audio_data):
     try:
-        # 1. vad_filter=True: Rejects silence
-        # 2. beam_size=5: Better accuracy
-        # 3. min_silence_duration_ms=500: Needs longer silence to split (reduces chopping)
         segments, info = model.transcribe(
             audio_data, 
             beam_size=5, 
@@ -91,25 +76,15 @@ def transcribe_audio(audio_data):
         
         valid_text = []
         for segment in segments:
-            # CHECK 1: Confidence Score (Log Probability)
-            # Scores are negative. Closer to 0 is better. 
-            # -1.0 is very confident. -4.0 is guessing.
             if segment.avg_logprob < -1.0: 
-                continue # Skip this segment, it's likely noise
-
-            # CHECK 2: Hallucination Filters
-            # Whisper loves to say these phrases in silence
+                continue 
             text = segment.text.strip().lower()
             hallucinations = [
                 "thank you", "subtitles by", "captioned by", 
                 "copyright", "audio", "amara.org", "community"
             ]
-            
-            # If the text contains ANY of the banned words, drop it
             if any(h in text for h in hallucinations):
                 continue
-            
-            # Additional Check: Single letter/very short garbage
             if len(text) < 2 and text not in ["no", "go"]:
                 continue
                 
@@ -125,8 +100,6 @@ def transcribe_audio(audio_data):
 @app.websocket("/ws/audio/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     await manager.connect(websocket)
-    
-    # 1. FETCH & CLEAN KEYWORDS
     try:
         user_doc = fs_db.collection('users').document(user_id).get()
         db_keywords = user_doc.to_dict().get('safetyKeywords', [])
@@ -141,10 +114,10 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 cleaned_keywords.append(clean_word)
 
         user_keywords = list(set(cleaned_keywords + ["help", "emergency", "save me"]))
-        print(f"   🛡️ Active Keywords for {user_id}: {user_keywords}")
+        print(f" Active Keywords for {user_id}: {user_keywords}")
 
     except Exception as e:
-        print(f"⚠️ DB Error (Using defaults): {e}")
+        print(f"DB Error (Using defaults): {e}")
         user_keywords = ["help", "emergency", "save me"]
 
     # 2. Buffer Setup
@@ -168,7 +141,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                     
                     for word in user_keywords:
                         if word.lower() in transcript.lower():
-                            print(f"🚨 MATCH: {word}")
+                            print(f" MATCH: {word}")
                             
                             db.reference(f'women/alerts/{user_id}').set({
                                 'type': 'CRITICAL',

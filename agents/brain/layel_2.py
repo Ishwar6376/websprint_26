@@ -10,8 +10,6 @@ from langgraph.graph.message import add_messages
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# --- 1. DEFINE THE TOOL ---
 @tool
 def flag_suspicious_route(route_id: str):
     """
@@ -21,7 +19,6 @@ def flag_suspicious_route(route_id: str):
         route_id: The ID of the suspicious route.
     """
     try:
-        # Calls your Node.js/FastAPI backend
         backend_url = os.getenv("BACKEND_URL", "http://localhost:3000")
         endpoint = f"{backend_url}/api/room/flag-room"
         
@@ -30,14 +27,11 @@ def flag_suspicious_route(route_id: str):
             "severity": "HIGH",
             "ai_reason": "Automated surveillance flag by AI Agent"
         }
-        
-        # Requests is synchronous, so using 'def' is the correct way.
         response = requests.post(endpoint, json=payload, timeout=5)
         return f"ALARM TRIGGERED for {route_id}. Status: {response.status_code}"
             
     except Exception as e:
         return f"FAILED to trigger alarm for {route_id}: {str(e)}"
-# --- 2. STATE DEFINITION ---
 class SurveillanceState(TypedDict):
     # This is the INPUT data (The Dictionary)
     route_data: Dict[str, List[float]]

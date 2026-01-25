@@ -42,7 +42,7 @@ export async function getNearbyGarbageReports(
         center
       );
 
-      // 🔹 Step 4: Precise distance filter
+    
       if (distanceInKm <= radiusInKm) {
         matchingReports.push({
           id: doc.id,

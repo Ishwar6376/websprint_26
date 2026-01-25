@@ -17,11 +17,12 @@ import complaintRoutes from "./src/routes/complaint.routes.js";
 import complaintStatsRoutes from "./src/routes/complaintStats.routes.js";
 import complaintHistoryRoutes from "./src/routes/complaintHistory.routes.js";
 import voiceRoutes from "./src/routes/voiceRoutes.js"
+import localityRoutes from "./src/routes/locality.routes.js"
+import reportRoutes from "./src/routes/report.routes.js"
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // 🔥 FIXES req.body undefined
 
-/* ---------------- MIDDLEWARE ---------------- */
 
 console.log("CORS ORIGIN:", process.env.CORS_ORIGIN);
 
@@ -37,7 +38,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-/* ---------------- ROUTES ---------------- */
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/room", roomRoutes);
@@ -48,13 +49,32 @@ app.use("/api/interests", interestRoutes);
 app.use("/api/garbage", garbageRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/alerts", setalertRoutes);
-/* ---------------- EXPORT ---------------- */
+
+import municipalRoute from "./src/routes/waste.route.js"
+
+app.use("/api/municipal",municipalRoute);
+
+
+
+
+
+
+import staff from "./src/routes/staff.js"
+app.use("/api/staff",staff);
+
+
+import trackReport from "./src/routes/track.route.js"
+app.use("/api/track",trackReport);
+
 app.use('/uploads', express.static('uploads'));
 app.use("/api/chats", chatRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/complaint-stats",complaintStatsRoutes);
 app.use("/api/complaint-history",complaintHistoryRoutes);
 app.use("/api/voice",voiceRoutes);
+app.use("/api/locality",localityRoutes)
+// app.use("/api/reports",reportRoutes)
+
 
 app.get("/health", (req, res) => res.status(200).json({ message: "server is healthy" }));
 

@@ -40,11 +40,11 @@ export default function GarbageUpload({ userLocation, onSubmit }) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        timeout:30000,
       });
-
+      console.log(res);
       const savedReport = res.data.report;
       onSubmit(savedReport);
-
       setTitle("");
       setImage(null);
     } catch (err) {
@@ -53,7 +53,6 @@ export default function GarbageUpload({ userLocation, onSubmit }) {
       const message =
         err?.response?.data?.message ||
         "Failed to upload garbage report";
-
       setError(message);
     } finally {
       setLoading(false);
@@ -117,7 +116,7 @@ export default function GarbageUpload({ userLocation, onSubmit }) {
           </div>
         )}
 
-        {/* REMOVED SHADOW/GLOW FROM BUTTON */}
+        
         <Button
           className="w-full bg-green-600 hover:bg-green-500 text-white"
           onClick={handleSubmit}

@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadMiddleware, uploadVoiceNote } from '../controllers/voiceController.js';
+import { uploadMiddleware, uploadVoiceNote } from '../controllers/women/voiceController.js';
 
 const router = express.Router();
 

@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { Button } from "../../../ui/button";
 import { MapPin, AlertCircle, ArrowLeft, List, Map as MapIcon } from "lucide-react"; 
-import { useNavigate } from "react-router-dom"; 
+import { Router, useNavigate } from "react-router-dom"; 
 import GarbageMap from "./GarbageMap";
 import GarbageUpload from "./GarbageUpload";
 import CleanupVerificationModal from "./CleanupVerificationModal";
 import { api } from "../../../lib/api";
 import MyComplaints from "./MyComplaints";
+import RecentComplaint from "./recentCompliants";
 import FloatingLines from "../../../ui/FloatingLines";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useAuthStore } from "../../../store/useAuthStore";
+
 
 export default function GarbageFeature() {
   const { getAccessTokenSilently } = useAuth0();
@@ -23,13 +25,13 @@ export default function GarbageFeature() {
   const [reportToVerify, setReportToVerify] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   
-  // --- Responsive State ---
-  const [mobileTab, setMobileTab] = useState("map"); // 'map' | 'list'
+  const [mobileTab, setMobileTab] = useState("map");
+  const [recentComplaint,setRecentComplaint]=useState([]);
 
   const user = useAuthStore((state) => state.user);
   const myReports = reports.filter((r) => r.userId === user?.sub);
 
-  // --- Location Handlers ---
+  
   const requestLocation = async () => {
     setIsLoadingLocation(true);
     try {
@@ -54,8 +56,7 @@ export default function GarbageFeature() {
   };
 
   const addReport = (report) => {
-    setReports((prev) => [...prev, report]);
-    // On mobile, switch to map to see the new pin
+    setReports((prev) => [report, ...prev]); 
     if (window.innerWidth < 1024) {
         setMobileTab("map");
     }
@@ -85,11 +86,6 @@ export default function GarbageFeature() {
     } catch (err) {
       console.error("Vote failed", err);
     }
-  };
-
-  const initiateDeleteProcess = (reportId) => {
-    setReportToVerify(reportId);
-    setIsVerifyModalOpen(true);
   };
 
   const handleVerifyAndClose = async (proofImage) => {
@@ -142,6 +138,7 @@ export default function GarbageFeature() {
   };
 
   useEffect(() => {
+
     if (!userLocation) return;
     fetchReports();
   }, [userLocation]);
@@ -278,15 +275,17 @@ export default function GarbageFeature() {
                 <GarbageUpload userLocation={userLocation} onSubmit={addReport} />
 
                 <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-                <MyComplaints
-                    reports={myReports}
-                    onDelete={initiateDeleteProcess} 
+                <RecentComplaint
+                    reports={reports.slice(0, 3)} 
                     onSelect={(report) => {
-                      setSelectedReport(report);
-                      setMobileTab("map"); // Switch to map on mobile when a report is clicked
+                        setSelectedReport(report);
+                        setMobileTab("map");
                     }}
                 />
+                <button className="text-white hover:cursor-pointer"
+                onClick={()=>navigate('/ecosnap/reports')}>
+                  Reports
+                </button>
             </div>
         </div>
 
@@ -301,8 +300,6 @@ export default function GarbageFeature() {
             />
         </div>
 
-        {/* MOBILE BOTTOM NAVIGATION PILL - GLASS */}
-        {/* Only visible on lg:hidden */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 lg:hidden w-auto pointer-events-none">
           <div className="flex items-center bg-black/40 border border-white/20 rounded-full p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-3xl pointer-events-auto">
              <button
@@ -335,13 +332,6 @@ export default function GarbageFeature() {
 
       </div>
 
-      {/* --- Verification Modal --- */}
-      <CleanupVerificationModal
-        isOpen={isVerifyModalOpen}
-        onClose={() => setIsVerifyModalOpen(false)}
-        onVerify={handleVerifyAndClose}
-        isLoading={isVerifying}
-      />
     </div>
   );
 }

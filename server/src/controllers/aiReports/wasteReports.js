@@ -1,0 +1,32 @@
+import { db } from '../../firebaseadmin/firebaseadmin.js';
+
+export const saveWasteReport = async (req, res) => {
+    try {
+        const data = req.body;
+        const { userId, geohash } = data;
+        if (!userId || !geohash) {
+            return res.status(400).json({ message: "Missing userId or geohash in payload" });
+        }
+        const dataToSave = { ...data };
+        delete dataToSave.userId;
+        
+        const reportRef = db.collection('wasteReports')
+            .doc(geohash)
+            .collection('reports')
+            .doc(userId);
+
+    await reportDocRef.set(dataToSave);
+
+    return res.status(200).json({
+      status: "VERIFIED",
+      message: "Waste report saved successfully",
+      reportId: reportDocRef.id
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: "FAILED",
+      message: error.message
+    });
+  }
+};

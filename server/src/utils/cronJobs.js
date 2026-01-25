@@ -1,10 +1,10 @@
 import cron from "node-cron";
-import { updateDeforestationReports } from "../controllers/deforestationReportUpdater.js";
-import { updateFireReports } from "../controllers/fireReportUpdater.js";
-import { updateCoastalReports } from "../controllers/coastalReportUpdater.js";
-import { updateFloodReports } from "../controllers/floodReportUpdater.js";
-import { updateSurfaceHeatReports } from "../controllers/surfaceheatReportUpdater.js";
-import { updateAirQualityReports } from "../controllers/pollutantReportUpdater.js";
+import { updateDeforestationReports } from "../controllers/gee/deforestationReportUpdater.js";
+import { updateFireReports } from "../controllers/gee/fireReportUpdater.js";
+import { updateCoastalReports } from "../controllers/gee/coastalReportUpdater.js";
+import { updateFloodReports } from "../controllers/gee/floodReportUpdater.js";
+import { updateSurfaceHeatReports } from "../controllers/gee/surfaceheatReportUpdater.js";
+import { updateAirQualityReports } from "../controllers/gee/pollutantReportUpdater.js";
 const startCronJobs = async () => {
   console.log("🚀 Initializing Cron Jobs..."); 
   cron.schedule("0 0 * * *", async () => {

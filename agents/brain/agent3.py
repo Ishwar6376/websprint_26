@@ -7,31 +7,22 @@ from dotenv import load_dotenv
 from langgraph.graph import END, START, StateGraph
 from langchain_core.messages import HumanMessage
 from datetime import datetime, timezone
-
 load_dotenv()
-
-
 if not os.getenv("GOOGLE_API_KEY"):
     raise ValueError("GOOGLE_API_KEY not found! Please check your ai_engine/.env file.")
-
 class FrontendMessage(BaseModel):
     userId: str
     message: str
-
 class GraphState(BaseModel):
     userId: str = Field(description="The ID of the user who pressed the throttle")
     routeId: Optional[str] = Field(default=None, description="The active route ID")
     message: List[FrontendMessage] = Field(description="Chat history")
     context: Optional[str] = Field(default=None, description="AI Analysis Result")
-
 flash_model = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
     temperature=0, 
     max_retries=2,
 )
-
-
-
 async def analyzeEmergency(state: GraphState):
     """
     Analyzes chat history.

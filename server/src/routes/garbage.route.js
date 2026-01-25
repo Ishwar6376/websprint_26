@@ -154,7 +154,7 @@ router.post("/", checkJwt, upload.single("image"), async (req, res) => {
     };
 
     const docRef = await db.collection("garbageReports").add(reportData);
-
+    
     return res.status(201).json({
       success: true,
       report: {
@@ -242,7 +242,7 @@ router.post(
         verifiedAt: new Date(),
         aiVerification: aiResult,
       });
-/*
+
       await sendEmail({
         to: reportData.email,
         subject: "♻️ Your Garbage Report Has Been Cleaned!",
@@ -270,7 +270,7 @@ router.post(
           },
         ],
       });
-*/
+      
       res.json({
         success: true,
         message: "Cleanup verified, email sent, report closed.",
