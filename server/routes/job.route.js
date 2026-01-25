@@ -91,4 +91,22 @@ router.get("/nearby", async (req, res) => {
   }
 });
 
+router.get("/my", checkJwt, async (req, res) => {
+  const userId = req.auth.payload.sub;
+
+  const snap = await db
+    .collection("jobs")
+    .where("employerId", "==", userId)
+    .orderBy("createdAt", "desc")
+    .get();
+
+  const jobs = snap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  res.json({ jobs });
+});
+
+
 export default router;
