@@ -74,6 +74,7 @@ app.use("/api/locality",localityRoutes)
 app.use("/api/reports",reportRoutes)
 
 
+
 app.get("/health", (req, res) => res.status(200).json({ message: "server is healthy" }));
 
 export { app };

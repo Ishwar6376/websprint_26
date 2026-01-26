@@ -36,6 +36,10 @@ import WasteStaffDashboard from "./pages/staff/waste/wasteStaff";
 import AssignTask from "@/pages/administration/muncipal/waste/assignTask"
 import InfraStaffDashboard from "./pages/staff/infra/infraStaff";
 import AssignInfraTask from "./pages/administration/muncipal/infra/assignInfraTask";
+import WaterStaffDashboard from "./pages/staff/water/waterStaff"
+import WaterAdmin from "./pages/administration/muncipal/water/water"
+import AssignWaterTask from "./pages/administration/muncipal/water/assignWaterTask"
+ 
 
 function App() {
   const location = useLocation();
@@ -294,6 +298,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/administration/municipal/water"
+          element={
+            <ProtectedRoute >
+              <WaterAdmin />
+            </ProtectedRoute>
+          }
+        />
 
           {/* staff  */}
           <Route
@@ -304,11 +316,19 @@ function App() {
             </ProtectedRoute>
           }
         />
-          <Route
+        <Route
           path="/staff/infra"
           element={
             <ProtectedRoute >
               < InfraStaffDashboard/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/water"
+          element={
+            <ProtectedRoute >
+              < WaterStaffDashboard/>
             </ProtectedRoute>
           }
         />
@@ -326,6 +346,14 @@ function App() {
           element={
             <ProtectedRoute >
               <AssignInfraTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assign/water/:geoHash"
+          element={
+            <ProtectedRoute >
+              <AssignWaterTask />
             </ProtectedRoute>
           }
         />
