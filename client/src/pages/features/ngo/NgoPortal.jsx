@@ -39,6 +39,8 @@ export default function NgoPortal({
   const [donations, setDonations] = useState([]);
   const [interestedDonationIds, setInterestedDonationIds] = useState(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [image, setImage] = useState(null);
+
 
   const navigate = useNavigate();
 
@@ -170,9 +172,29 @@ export default function NgoPortal({
         lng = coords.lng;
         address = donationForm.location;
       }
-      await api.post("/api/donations", { category: selectedCategory, description: donationForm.description, address, lat, lng, time: donationForm.time, donorName,  }, { headers: { Authorization: `Bearer ${token}` } });
+      const formData = new FormData();
+      formData.append("category", selectedCategory);
+      formData.append("description", donationForm.description);
+      formData.append("address", address);
+      formData.append("lat", lat);
+      formData.append("lng", lng);
+      formData.append("time", donationForm.time);
+      formData.append("donorName", donorName);
+
+if (image) {
+  formData.append("image", image); // MUST match upload.single("image")
+}
+
+await api.post("/api/donations", formData, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "multipart/form-data",
+  },
+});
+
       alert("Donation posted successfully!");
       setDonationForm({ description: "", location: "", time: "" });
+      setImage(null);
       resetState();
     } catch (err) { console.error(err); alert("Donation failed"); }
   };
@@ -277,6 +299,13 @@ export default function NgoPortal({
             <div className="space-y-3">
               {donations.map((d) => (
                 <GlassCard key={d.id} className="p-4 hover:bg-white/5 transition-colors">
+                {d.image && (
+                  <img
+                    src={d.image}
+                    alt="donation"
+                    className="w-full h-44 object-cover rounded-lg mb-3 border border-white/10"
+                  />
+                )}
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold text-white text-lg">{d.description}</h4>
                     <span className="text-xs font-mono text-zinc-500 bg-black/20 px-2 py-1 rounded">{d.time}</span>
@@ -340,6 +369,74 @@ export default function NgoPortal({
                         onChange={(e) => setDonationForm({ ...donationForm, description: e.target.value })}
                     />
                 </div>
+                 <div className="space-y-2">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                  Item Photo (Optional)
+                </label>
+
+                <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-zinc-700 rounded-xl cursor-pointer bg-zinc-900/40 hover:bg-zinc-900/70 transition relative overflow-hidden">
+
+                  {!image ? (
+                    <>
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg
+                          className="w-8 h-8 mb-2 text-zinc-400"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"
+                          />
+                        </svg>
+                        <p className="mb-1 text-sm text-zinc-400">
+                          <span className="font-semibold text-white">Click to upload</span>
+                        </p>
+                        <p className="text-xs text-zinc-500">PNG, JPG up to 5MB</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                      <div className="flex items-center gap-2 text-green-400 text-sm font-semibold">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Uploaded
+                      </div>
+                      <p className="text-xs text-zinc-300 mt-1 truncate max-w-[80%] text-center">
+                        {image.name}
+                      </p>
+                    </div>
+                  )}
+
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => setImage(e.target.files[0])}
+                  />
+                </label>
+
+                {/* PREVIEW */}
+                {image && (
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt="preview"
+                    className="mt-3 w-full h-40 object-cover rounded-lg border border-zinc-800"
+                  />
+                )}
+              </div>
+
+
 
                 <div className="space-y-2">
                     <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Availability</label>
