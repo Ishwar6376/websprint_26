@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera, X, Loader2 } from "lucide-react";
+import { Camera, X, Loader2, CheckCircle2, Info } from "lucide-react";
 import { Button } from "../../../../ui/button";
 import { api } from "../../../../lib/api"; 
 import { useAuthStore } from "../../../../store/useAuthStore";
@@ -12,6 +12,7 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
   const [imageUrl, setImageUrl] = useState(null); 
   const [description, setDescription] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle"); 
+  const [serverTool, setServerTool] = useState(null); // [NEW] Track SAVE vs UPDATE
 
   const { getAccessTokenSilently } = useAuth0(); 
   const user = useAuthStore((state) => state.user);
@@ -54,7 +55,7 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
 
   // --- 2. Final Submission ---
   const handleSubmit = async () => {
-    // ✅ SAFETY CHECK 1: Ensure location exists before trying to access .lat
+    // ✅ SAFETY CHECK 1: Ensure location exists
     if (!userLocation || !userLocation.lat || !userLocation.lng) {
         alert("Location data is missing. Please wait or refresh.");
         return;
@@ -70,12 +71,11 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: {
-          audience: import.meta.env.VITE_AUTH0_AUDIENCE, // Ensure this ENV variable exists
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE, 
           scope: "openid profile email"
         }
       });
 
-      // [NOTE] Level 7 = Approx 150m x 150m blocks.
       const geoHashId = geohash.encode(userLocation.lat, userLocation.lng, 7);
 
       const payload = {
@@ -94,22 +94,31 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
         payload,
         {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            timeout:60000
           }
         }
       );
+      console.log("response coming from backend",response.data.tool)
 
       if (response.status === 200 || response.status === 201) {
+        // [CHANGE] Capture the tool ('SAVE' or 'UPDATE')
+        const toolAction = response.data.tool || "SAVE";
+        setServerTool(toolAction);
+        
         setStep("submitted");
         if (onSubmitSuccess) onSubmitSuccess(response.data);
+        console.log("response after report submission", response.data);
         
+        // [CHANGE] Increased timeout to 8 seconds so user can read the message
         setTimeout(() => {
           setStep("idle");
           setImagePreview(null);
           setImageUrl(null);
           setDescription("");
           setUploadStatus("idle");
-        }, 2500); 
+          setServerTool(null); // Reset tool
+        }, 8000); 
       } else {
         throw new Error("Backend responded with error");
       }
@@ -120,18 +129,45 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
     }
   };
 
+  // --- 3. Success View (Modified) ---
   if (step === "submitted") {
     return (
-      <div className="h-full flex flex-col items-center justify-center space-y-4 animate-in fade-in zoom-in duration-300">
-        <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/50 relative">
-          <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
-          <Loader2 className="w-8 h-8 text-blue-400 animate-spin relative z-10" />
+      <div className="h-full flex flex-col items-center justify-center space-y-6 px-4 animate-in fade-in zoom-in duration-500">
+        
+        {/* Dynamic Icon Circle */}
+        <div className={`w-20 h-20 rounded-full flex items-center justify-center border relative ${
+          serverTool === 'SAVE' ? 'bg-emerald-500/20 border-emerald-500/50' : 'bg-blue-500/20 border-blue-500/50'
+        }`}>
+          <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${
+            serverTool === 'SAVE' ? 'bg-emerald-500' : 'bg-blue-500'
+          }`} />
+          
+          {serverTool === 'SAVE' ? (
+            <CheckCircle2 className="w-10 h-10 text-emerald-400 relative z-10" />
+          ) : (
+            <Info className="w-10 h-10 text-blue-400 relative z-10" />
+          )}
         </div>
-        <div className="text-center">
-          <h3 className="text-xl font-bold text-white">Report Received</h3>
-          <p className="text-zinc-400 text-sm mt-1">
-            Orchestrator is analyzing severity<br/>& assigning category...
+        
+        {/* Dynamic Text Content */}
+        <div className="text-center max-w-xs">
+          <h3 className="text-2xl font-bold text-white mb-2">
+            {serverTool === 'SAVE' ? 'Report Saved' : 'Update Received'}
+          </h3>
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            {serverTool === 'SAVE' 
+              ? "Your report has been successfully saved and will be assigned to our staff for resolution."
+              : "Someone has already reported this same incident. We've noted your report and you'll receive an email once it's resolved."
+            }
           </p>
+        </div>
+
+        {/* Progress Indicator */}
+        <div className="pt-4">
+          <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            Redirecting in 8s...
+          </div>
         </div>
       </div>
     );

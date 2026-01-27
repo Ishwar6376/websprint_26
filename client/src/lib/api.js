@@ -5,7 +5,7 @@ if(!API_URL) throw new Error("API_URL is not defined");
 console.log("baseURL",API_URL);
 export const api = axios.create({
   baseURL: API_URL,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 export const verifyCleanup = async (reportId, file, lat, lng, token) => {

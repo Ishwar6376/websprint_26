@@ -167,6 +167,7 @@ async def create_report(
 
         category = result.get("assigned_category") 
         extracted_title = "Report Processed" 
+        tool=result.get("tool")
 
         if category:
  
@@ -185,7 +186,9 @@ async def create_report(
                 "category": category,
                 "title": extracted_title, 
                 "severity": result.get("severity"),
-                "ai_analysis": result.get("aiAnalysis")
+                "ai_analysis": result.get("aiAnalysis"),
+                "tool":tool
+
             }
         else:
             return {

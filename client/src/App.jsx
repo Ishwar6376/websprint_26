@@ -39,7 +39,8 @@ import AssignInfraTask from "./pages/administration/muncipal/infra/assignInfraTa
 import WaterStaffDashboard from "./pages/staff/water/waterStaff"
 import WaterAdmin from "./pages/administration/muncipal/water/water"
 import AssignWaterTask from "./pages/administration/muncipal/water/assignWaterTask"
-import ComplaintsPage from "./pages/features/reports/index";
+import ComplaintsPage from "./pages/features/reports/index"
+
 function App() {
   const location = useLocation();
   const showNavbar = ["/", "/mission", "/about"].includes(location.pathname);
@@ -135,10 +136,10 @@ function App() {
         />
 
         <Route
-        path="/ecosnap"
+        path="/reports"
         element={
           <ProtectedRoute>
-            <GarbageFeature />
+            <ComplaintsPage/>
           </ProtectedRoute>
         }
       />
@@ -150,14 +151,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        //purana garbage wala //
+        {/*<Route
           path="/garbage"
           element={
             <ProtectedRoute>
               <Garbage />
             </ProtectedRoute>
           }
-        />
+        />*/}
        <Route
         path="/ngo/*"
         element={

@@ -168,7 +168,9 @@ def save_report_tool(state: AgentState):
             "downvotes": 0,
             "createdAt": current_time,
             "updatedAt": current_time,
-            "interests": [] 
+            "interests": [],
+            "assigned_category":state.get("assigned_category")
+
         }
 
         response = requests.post(url, json=payload, timeout=TIMEOUT)

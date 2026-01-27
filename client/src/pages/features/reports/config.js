@@ -1,19 +1,26 @@
-import { Droplet, Waves, Activity, AlertTriangle } from "lucide-react";
+import { Building2, Trash2, Zap, Droplets, Activity, AlertTriangle, ShieldCheck } from "lucide-react";
 
-export const WATER_FEATURE = {
-  id: "water-complaints",
-  title: "AquaResolve",
-  subtitle: "Smart Water Management",
-  description: "Report leaks, contamination, or shortages. Our AI analyzes image data to prioritize critical repairs.",
+export const GRIEVANCE_CONFIG = {
+  id: "public-grievance-system",
+  title: "CivicConnect",
+  subtitle: "Public Reports Portal",
+  description: "Unified reporting system for public utilities. Geo-tagged submissions are automatically routed to the relevant municipal department.",
   theme: {
-    primary: "blue",
-    gradient: "from-blue-500 to-cyan-400",
-    bgAccent: "bg-blue-500/10",
-    border: "border-blue-500/20",
+    // Official "Government" Dark Theme
+    primary: "slate",
+    gradient: "from-slate-700 to-zinc-800",
+    activeGradient: "from-blue-600 to-slate-800", // For buttons
+    bgAccent: "bg-white/5",
+    border: "border-white/10",
+    textDim: "text-zinc-400",
+    textHighlight: "text-white"
   },
   icons: {
-    main: Droplet,
-    wave: Waves,
+    main: ShieldCheck, // Changed from Droplet to Shield/Official Icon
+    infra: Building2,
+    waste: Trash2,
+    power: Zap,
+    water: Droplets,
     analysis: Activity,
     alert: AlertTriangle
   }

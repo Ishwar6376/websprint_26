@@ -10,7 +10,6 @@ export const saveWasteReport = async (req, res) => {
     }
 
     const dataToSave = { ...data };
-    delete dataToSave.userId;
 
     const reportDocRef = db
       .collection('wasteReports')

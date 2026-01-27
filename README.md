@@ -1,15 +1,12 @@
-# UrbanFlow: The Civic Operating System
+# CityBeat: The Civic Operating System
 
-**Team Name:** CONSTANTS  
-**Event:** GDG Hackathon  
-**Vercel Link:** https://gdg-mocha.vercel.app  
-**Administration Panel:** https://gdg-mocha.vercel.app/administration
+**Team Name:** CONSTANTS
 
 ---
 
 ## Executive Summary
 
-UrbanFlow is an enterprise-grade smart city platform designed to eliminate operational silos between city residents and administrators. Modern urban systems suffer from fragmented workflows, opaque grievance mechanisms, and a lack of real-time intelligence. UrbanFlow addresses these challenges by creating a unified, bidirectional ecosystem:
+CityBeat is an enterprise-grade smart city platform designed to eliminate operational silos between city residents and administrators. Modern urban systems suffer from fragmented workflows, opaque grievance mechanisms, and a lack of real-time intelligence. CityBeat addresses these challenges by creating a unified, bidirectional ecosystem:
 
 1. **Citizen Interface:** Mobile-first tools enabling residents to act as real-time sensors for safety, sanitation, and community operations.  
 2. **Administrative Command Center:** A data-rich control panel integrating satellite intelligence and crowd-sourced telemetry for informed policymaking.
@@ -98,7 +95,7 @@ Tracks NO2 and aerosol concentration to identify pollution-heavy zones for enfor
 
 ## Technical Architecture
 
-UrbanFlow uses a microservices-driven approach optimized for real-time geospatial intelligence, AI inference, and scalable communication.
+CityBeat uses a microservices-driven approach optimized for real-time geospatial intelligence, AI inference, and scalable communication.
 
 ### Google Technology Suite
 
@@ -123,4 +120,4 @@ UrbanFlow uses a microservices-driven approach optimized for real-time geospatia
 
 ## Impact Statement
 
-UrbanFlow acts as foundational digital infrastructure for smart cities. By combining citizen-generated signals with high-resolution environmental intelligence, the system enables safer streets, rapid sanitation workflows, and data-backed policy decisions. The result is a responsive, self-correcting urban ecosystem designed for the next generation of civic governance.
+CityBeat acts as foundational digital infrastructure for smart cities. By combining citizen-generated signals with high-resolution environmental intelligence, the system enables safer streets, rapid sanitation workflows, and data-backed policy decisions. The result is a responsive, self-correcting urban ecosystem designed for the next generation of civic governance.

@@ -10,7 +10,6 @@ export const saveUncertainReport = async (req, res) => {
     }
 
     const dataToSave = { ...data };
-    delete dataToSave.userId;
 
     const reportDocRef = db
       .collection('uncertainReports')

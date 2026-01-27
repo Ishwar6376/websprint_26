@@ -13,7 +13,6 @@ import {
   Heart
 } from "lucide-react";
 
-// Updated Features with specific Colors and Icon Components
 const FEATURES = [
   {
     id: "women-safety",
@@ -24,13 +23,14 @@ const FEATURES = [
     color: "pink"
   },
   {
-    id: "complaints",
-    title: "CivicHub",
-    description: "Report civic issues like water, roads, and sanitation. Track resolution in real-time.",
-    route: "/water",
+    id: "reports",
+    title: "CivicConnect",
+    description: "Submit grievances related to infrastructure, electricity, water, and waste management",
+    route: "/reports",
     icon: Megaphone,
-    color: "cyan"
+    color: "blue"
   },
+
   {
     id: "jobs",
     title: "StreetGig",

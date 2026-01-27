@@ -10,8 +10,6 @@ export const saveElectricityReport = async (req, res) => {
     }
 
     const dataToSave = { ...data };
-    delete dataToSave.userId;
-    delete dataToSave.geohash;
     const reportDocRef = db
       .collection('electricityReports')
       .doc(geohash)
@@ -19,7 +17,13 @@ export const saveElectricityReport = async (req, res) => {
       .doc(userId)
       .collection('userReports')
       .doc();
-    await reportDocRef.set(dataToSave);
+
+    const finalData={
+      ...dataToSave,
+      id:reportDocRef.id,
+      createdAt:new Date()
+    }
+    await reportDocRef.set(finalData);
     console.log(`Electricity Report Saved: ${geohash} -> ${userId} -> ${reportDocRef.id}`);
     return res.status(200).json({
       status: "VERIFIED",
