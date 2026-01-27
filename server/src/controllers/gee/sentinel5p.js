@@ -1,9 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { runAirQualityCheck } from "../gee/earth/pollutants/sentinel5p_air_quality.js"
+import { runAirQualityCheck } from "../../gee/earth/pollutants/sentinel5p_air_quality.js"
 import dotenv from "dotenv";
-import { db } from "../firebaseadmin/firebaseadmin.js";
+import { db } from "../../firebaseadmin/firebaseadmin.js";
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);

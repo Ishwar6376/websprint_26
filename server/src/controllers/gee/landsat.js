@@ -1,29 +1,24 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { runFireProtectionCheck } from "../../gee/earth/fire/viirs_fire_monitor.js"; // Ensure this matches your wrapper filename
-import dotenv from "dotenv";
-import { db } from "../../firebaseadmin/firebaseadmin.js";
+import { runCoastalCheck } from "../../gee/earth/coastal_erosion/landsat_coastal.js"; 
+import { db } from "../../firebaseadmin/firebaseadmin.js"; 
 
-dotenv.config();
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
 function ensureGeoJsonFormat(geometry) {
+   
     if (!geometry || !geometry.coordinates) return geometry;
 
     const coords = geometry.coordinates;
-
-    
     if (Array.isArray(coords) && coords.length > 0 && typeof coords[0] === 'object' && !Array.isArray(coords[0])) {
         
         console.log("Backend: Detected Google Maps format. Converting to GeoJSON...");
 
-        
-        let ring = coords.map(point => [point.lng, point.lat]);
-
        
+        let ring = coords.map(point => [point.lng, point.lat]);
         const first = ring[0];
         const last = ring[ring.length - 1];
         
@@ -31,37 +26,35 @@ function ensureGeoJsonFormat(geometry) {
             ring.push(first);
         }
 
-       
         return {
             type: 'Polygon',
             coordinates: [ring]
         };
     }
-
     return geometry;
 }
 
-export async function generatefireReport(req, res) {
+export async function generateCoastalReport(req, res) {
     try {
+        // CHANGE 1: Extract years from the request body
         const {
             regionGeoJson,
             regionId,
-            previousDays, 
-            buffermeters 
+            historicYear, // Optional (will default in helper if undefined)
+            currentYear   // Optional
         } = req.body;
-        
+
         if (!regionGeoJson || !regionId) {
             return res.status(400).json({ 
                 success: false, 
                 error: "Missing required fields: regionGeoJson or regionId" 
             });
         }
-
-        
         const sanitizedGeoJson = ensureGeoJsonFormat(regionGeoJson);
 
         let credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         
+        // Clean credentials path
         if (credentialsPath && credentialsPath.startsWith('"') && credentialsPath.endsWith('"')) {
             credentialsPath = credentialsPath.slice(1, -1);
         }
@@ -77,19 +70,19 @@ export async function generatefireReport(req, res) {
         if (!fs.existsSync(credentialsPath)) {
             return res.status(500).json({ success: false, error: "GEE credentials file not found" });
         }
+
+        let coastal_analysis_result = null;
         let reportref=null;
-        let fire_analysis_result = null;
         try {
-           
-            fire_analysis_result = await runFireProtectionCheck(
+            coastal_analysis_result = await runCoastalCheck(
                 sanitizedGeoJson, 
                 regionId, 
                 credentialsPath,
-                previousDays, 
-                buffermeters  
+                historicYear, 
+                currentYear  
             );
-
-            if (!fire_analysis_result) {
+            
+            if (!coastal_analysis_result) {
                 throw new Error("Analysis script returned no data");
             }
 
@@ -105,21 +98,22 @@ export async function generatefireReport(req, res) {
             });
         }
 
-        const userId = req.auth.payload.sub; 
-        
-        if (fire_analysis_result.status === 'success' && userId) {
-            try {
-                const reports=await db.collection('fire_reports').doc(userId).collection('reports').add({
-                    regionGeoJson: JSON.stringify(sanitizedGeoJson), 
-                    timestamp: new Date(), 
-                    parameters: {
-                        daysBack: previousDays || 5,
-                        buffer: buffermeters || 5000
-                    },
-                    ...fire_analysis_result
-                });
-                reportref=reports.id;
+        const userId = req.auth.payload.sub;
+        console.log("userid", userId);
 
+        if (coastal_analysis_result.status === 'success') {
+            try { 
+        
+                const report=await db.collection('coastal_reports')
+                    .doc(userId).collection('reports') 
+                    .add({
+                        regionGeoJson:JSON.stringify(sanitizedGeoJson),
+                        historicYear: historicYear || 2000,
+                        currentYear: currentYear || 2024,
+                        timestamp: new Date(),
+                        ...coastal_analysis_result
+                    });
+                reportref=report.id;
                 console.log(`Report saved to Firestore for region: ${regionId}`);
 
             } catch (dbError) {
@@ -130,8 +124,8 @@ export async function generatefireReport(req, res) {
         return res.json({
             success: true,
             result: {
-                ...fire_analysis_result,
-                reportref,
+                ...coastal_analysis_result,
+                reportref
             }
         });
         

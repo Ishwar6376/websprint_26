@@ -1,9 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { runFloodCheck } from "../gee/earth/flood/sentinel1_flood.js";
+import { runFloodCheck } from "../../gee/earth/flood/sentinel1_flood.js";
 import dotenv from "dotenv";
-import { db } from "../firebaseadmin/firebaseadmin.js"; 
+import { db } from "../../firebaseadmin/firebaseadmin.js"; 
 
 dotenv.config();
 

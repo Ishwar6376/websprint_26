@@ -1,8 +1,8 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { runDeforestationCheck } from "../gee/earth/deforestation/copernicus_deforestation.js"; 
-import { db } from "../firebaseadmin/firebaseadmin.js"; 
+import { runDeforestationCheck } from "../../gee/earth/deforestation/copernicus_deforestation.js"; 
+import { db } from "../../firebaseadmin/firebaseadmin.js"; 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 function ensureGeoJsonFormat(geometry) {

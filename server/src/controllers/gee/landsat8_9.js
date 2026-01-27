@@ -1,29 +1,23 @@
-import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { runFireProtectionCheck } from "../../gee/earth/fire/viirs_fire_monitor.js"; // Ensure this matches your wrapper filename
-import dotenv from "dotenv";
+import { runHeatCheck } from "../../gee/earth/surfaceHeat/landsat_surface_temp.js";
+import path from "path"
 import { db } from "../../firebaseadmin/firebaseadmin.js";
 
-dotenv.config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
 function ensureGeoJsonFormat(geometry) {
+   
     if (!geometry || !geometry.coordinates) return geometry;
 
     const coords = geometry.coordinates;
-
-    
     if (Array.isArray(coords) && coords.length > 0 && typeof coords[0] === 'object' && !Array.isArray(coords[0])) {
         
         console.log("Backend: Detected Google Maps format. Converting to GeoJSON...");
 
-        
-        let ring = coords.map(point => [point.lng, point.lat]);
-
        
+        let ring = coords.map(point => [point.lng, point.lat]);
         const first = ring[0];
         const last = ring[ring.length - 1];
         
@@ -31,24 +25,23 @@ function ensureGeoJsonFormat(geometry) {
             ring.push(first);
         }
 
-       
         return {
             type: 'Polygon',
             coordinates: [ring]
         };
     }
-
     return geometry;
 }
-
-export async function generatefireReport(req, res) {
+export async function generateLandHeatReport(req, res) {
     try {
         const {
             regionGeoJson,
             regionId,
-            previousDays, 
-            buffermeters 
+            thresholdCelsius,
+            recentDays,
+            bufferMeters
         } = req.body;
+
         
         if (!regionGeoJson || !regionId) {
             return res.status(400).json({ 
@@ -56,9 +49,6 @@ export async function generatefireReport(req, res) {
                 error: "Missing required fields: regionGeoJson or regionId" 
             });
         }
-
-        
-        const sanitizedGeoJson = ensureGeoJsonFormat(regionGeoJson);
 
         let credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
         
@@ -77,19 +67,23 @@ export async function generatefireReport(req, res) {
         if (!fs.existsSync(credentialsPath)) {
             return res.status(500).json({ success: false, error: "GEE credentials file not found" });
         }
+
+        let landheat_analysis_result = null;
         let reportref=null;
-        let fire_analysis_result = null;
+        const sanitizedGeoJson = ensureGeoJsonFormat(regionGeoJson);
         try {
-           
-            fire_analysis_result = await runFireProtectionCheck(
+            
+            landheat_analysis_result = await runHeatCheck(
                 sanitizedGeoJson, 
                 regionId, 
-                credentialsPath,
-                previousDays, 
-                buffermeters  
+                credentialsPath, 
+                thresholdCelsius,
+                bufferMeters,
+                recentDays
             );
 
-            if (!fire_analysis_result) {
+            
+            if (!landheat_analysis_result) {
                 throw new Error("Analysis script returned no data");
             }
 
@@ -105,32 +99,31 @@ export async function generatefireReport(req, res) {
             });
         }
 
-        const userId = req.auth.payload.sub; 
-        
-        if (fire_analysis_result.status === 'success' && userId) {
+       const userId=req.auth.payload.sub;
+       console.log("userid",userId);
+        if (landheat_analysis_result.status === 'success') {
             try {
-                const reports=await db.collection('fire_reports').doc(userId).collection('reports').add({
-                    regionGeoJson: JSON.stringify(sanitizedGeoJson), 
-                    timestamp: new Date(), 
-                    parameters: {
-                        daysBack: previousDays || 5,
-                        buffer: buffermeters || 5000
+                const report=await db.collection('landheat_reports').doc(userId).collection('reports').add({
+                    parameters:{
+                        recentDays,
+                        bufferMeters
                     },
-                    ...fire_analysis_result
+                    timestamp: new Date(), 
+                    ...landheat_analysis_result
                 });
-                reportref=reports.id;
-
+                reportref=report.id;
                 console.log(`Report saved to Firestore for region: ${regionId}`);
 
             } catch (dbError) {
                 console.error("Firebase Save Error:", dbError);
+               
             }
         }
 
         return res.json({
             success: true,
             result: {
-                ...fire_analysis_result,
+                ...landheat_analysis_result,
                 reportref,
             }
         });
