@@ -19,6 +19,7 @@ import complaintHistoryRoutes from "./src/routes/complaintHistory.routes.js";
 import voiceRoutes from "./src/routes/voiceRoutes.js"
 import localityRoutes from "./src/routes/locality.routes.js"
 import reportRoutes from "./src/routes/report.routes.js"
+import userRoutes from "./src/routes/user.routes.js"
 const app = express();
 
 
@@ -71,9 +72,9 @@ app.use("/api/complaint-stats",complaintStatsRoutes);
 app.use("/api/complaint-history",complaintHistoryRoutes);
 app.use("/api/voice",voiceRoutes);
 app.use("/api/locality",localityRoutes)
+// app.use("/api/reports",reportRoutes)
+app.use("/api/user",userRoutes)
 app.use("/api/reports",reportRoutes)
-
-
 
 app.get("/health", (req, res) => res.status(200).json({ message: "server is healthy" }));
 

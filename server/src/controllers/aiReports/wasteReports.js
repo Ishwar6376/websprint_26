@@ -9,7 +9,7 @@ export const saveWasteReport = async (req, res) => {
       return res.status(400).json({ message: "Missing userId or geohash in payload" });
     }
 
-    const dataToSave = { ...data };
+    
 
     const reportDocRef = db
       .collection('wasteReports')
@@ -18,20 +18,25 @@ export const saveWasteReport = async (req, res) => {
       .doc(userId)
       .collection('userReports')
       .doc();
-    const finalData = {
-        ...dataToSave,
-        id: reportDocRef.id, 
-        createdAt: new Date() 
+
+    const dataToSave = { 
+      ...data,
+      id: reportDocRef.id,
+      userId: userId,     
+      geohash: geohash     
     };
-    await reportDocRef.set(finalData);
+
+    
+    await reportDocRef.set(dataToSave);
 
     return res.status(200).json({
       status: "VERIFIED",
-      message: "Waste report saved successfully",
+      message: "waste report saved successfully",
       reportId: reportDocRef.id
     });
 
   } catch (error) {
+    console.error("Error saving waste report:", error);
     return res.status(500).json({
       status: "FAILED",
       message: error.message
