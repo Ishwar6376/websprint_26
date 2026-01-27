@@ -10,7 +10,7 @@ const Login = () => {
                  bg-white/10 border border-white/20 text-white
                  hover:bg-white/30 hover:border-white/40 cursor-pointer"
     >
-      Login to UrbanFlow
+      Login to CityBeat
     </button>
   );
 };

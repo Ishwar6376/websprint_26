@@ -1,4 +1,3 @@
-// components/urbanflow/UrbanFlowUI.tsx
 import FloatingLines from "../../ui/FloatingLines";
 import { Button } from "../../ui/button";
 import { X } from "lucide-react";
@@ -30,7 +29,7 @@ export default function UrbanFlowUI({
 
       {/* HEADER */}
       <header className="h-20 px-8 flex items-center justify-between">
-        <h1 className="text-2xl font-black">UrbanFlow</h1>
+        <h1 className="text-2xl font-black">CityBeat</h1>
         <div className="flex items-center gap-3">
           <img src={user?.picture} className="w-8 h-8 rounded-full" />
           <span>{user?.name}</span>

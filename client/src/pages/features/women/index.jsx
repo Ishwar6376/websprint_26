@@ -373,12 +373,11 @@ const handleExit = async () => {
               <ChevronLeft className="h-6 w-6" />
             </Button>
             
-            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">UrbanFlow</h1>
+            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight">CityBeat</h1>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
             
-            {/* TOGGLE CHAT BUTTON (Visible on all screens, helps to re-open if closed) */}
              <Button 
                 variant="ghost" 
                 size="icon"

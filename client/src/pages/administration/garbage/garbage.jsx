@@ -214,7 +214,7 @@ export default function GarbageAdmin() {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tighter text-slate-900">
-              UrbanFlow
+              CityBeat
             </h1>
             <p className="text-xs text-slate-500 font-bold tracking-widest uppercase">
               Waste Management Command
