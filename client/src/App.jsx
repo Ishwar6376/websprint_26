@@ -39,6 +39,9 @@ import AssignInfraTask from "./pages/administration/muncipal/infra/assignInfraTa
 import WaterStaffDashboard from "./pages/staff/water/waterStaff"
 import WaterAdmin from "./pages/administration/muncipal/water/water"
 import AssignWaterTask from "./pages/administration/muncipal/water/assignWaterTask"
+import UserReportsDashboard from "./pages/reports/user/userReportDashboard";
+import ComplaintsPage from "./pages/features/reports/index";
+
  
 
 function App() {
@@ -58,6 +61,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CivicHub />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/complaint"
+          element={
+            <ProtectedRoute>
+              <ComplaintsPage />
             </ProtectedRoute>
           }
         />        
@@ -273,6 +284,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/reports/me"
+          element={
+            <ProtectedRoute >
+              <UserReportsDashboard />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/administration/municipal/infrastructure"
           element={
