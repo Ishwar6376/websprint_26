@@ -1,4 +1,5 @@
 import { db } from '../../firebaseadmin/firebaseadmin.js';
+import ngeohash from 'ngeohash'; // You likely need this package
 
 function getDistanceInMeters(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
@@ -7,11 +8,9 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
   const Δφ = (lat2 - lat1) * Math.PI / 180;
   const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-  const a =
-    Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) * Math.cos(φ2) *
-    Math.sin(Δλ / 2) ** 2;
-
+  const a = Math.sin(Δφ / 2) ** 2 +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -24,56 +23,60 @@ export const electricityCheck = async (req, res) => {
       return res.status(400).json({ message: "Invalid location or geohash data" });
     }
 
-    const reportsCollectionRef = db
-      .collection("electricityReports")
-      .doc(geohash)
-      .collection("reports");
-
-    // [FIX] Use listDocuments() to find virtual/phantom documents
-    const userDocRefs = await reportsCollectionRef.listDocuments();
-
-    if (userDocRefs.length === 0) {
-      console.log("[Electricity] No users (virtual or real) found in geohash.");
-      return res.status(200).json({ duplicateFound: false });
-    }
+    // 1. Get the center geohash and its 8 neighbors
+    const neighbors = ngeohash.neighbors(geohash);
+    const geohashesToCheck = [geohash, ...neighbors];
 
     let closestReport = null;
     let minDistance = Infinity;
 
-    // Loop through the DocumentReferences (not Snapshots)
-    for (const userDocRef of userDocRefs) {
-      const userId = userDocRef.id;
+    // 2. Loop through ALL 9 geohashes
+    // Use Promise.all to fetch them in parallel for speed
+    await Promise.all(geohashesToCheck.map(async (hash) => {
+      
+      const reportsCollectionRef = db
+        .collection("electricityReports")
+        .doc(hash) // Check this specific hash
+        .collection("reports");
 
-      // Query subcollection using reference
-      const reportsSnapshot = await userDocRef.collection("userReports").get();
+      const userDocRefs = await reportsCollectionRef.listDocuments();
 
-      reportsSnapshot.forEach(reportDoc => {
-        const reportData = reportDoc.data();
+      if (userDocRefs.length === 0) return;
 
-        if (reportData.location?.lat && reportData.location?.lng) {
-          const distance = getDistanceInMeters(
-            location.lat,
-            location.lng,
-            reportData.location.lat,
-            reportData.location.lng
-          );
+      // Check users in this hash
+      for (const userDocRef of userDocRefs) {
+        const userId = userDocRef.id;
+        const reportsSnapshot = await userDocRef.collection("userReports").get();
 
-          if (distance <= 6 && distance < minDistance) {
-            minDistance = distance;
+        reportsSnapshot.forEach(reportDoc => {
+          const reportData = reportDoc.data();
 
-            closestReport = {
-              imageUrl: reportData.imageUrl,
-              userId,
-              reportId: reportDoc.id,             
-              locality_email: reportData.email
-            };
+          if (reportData.location?.lat && reportData.location?.lng) {
+            const distance = getDistanceInMeters(
+              location.lat,
+              location.lng,
+              reportData.location.lat,
+              reportData.location.lng
+            );
+
+            // Distance check (6 meters)
+            if (distance <= 6 && distance < minDistance) {
+              minDistance = distance;
+              closestReport = {
+                imageUrl: reportData.imageUrl,
+                userId,
+                reportId: reportDoc.id,             
+                locality_email: reportData.email,
+                distance: distance // Useful for debugging
+              };
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    }));
 
     if (closestReport) {
-      console.log("[Electricity] Duplicate found via locality check.");
+      console.log(`[Electricity] Duplicate found. Distance: ${closestReport.distance}m`);
       return res.status(200).json({
         duplicateFound: true,
         data: closestReport
