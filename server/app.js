@@ -71,7 +71,8 @@ app.use("/api/complaint-stats",complaintStatsRoutes);
 app.use("/api/complaint-history",complaintHistoryRoutes);
 app.use("/api/voice",voiceRoutes);
 app.use("/api/locality",localityRoutes)
-// app.use("/api/reports",reportRoutes)
+app.use("/api/reports",reportRoutes)
+
 
 
 app.get("/health", (req, res) => res.status(200).json({ message: "server is healthy" }));

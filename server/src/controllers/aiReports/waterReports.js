@@ -11,7 +11,6 @@ export const saveWaterReport = async (req, res) => {
 
     const dataToSave = { ...data };
     delete dataToSave.userId;
-    delete dataToSave.geohash;
 
     const reportDocRef = db
       .collection('waterReports')
@@ -20,8 +19,13 @@ export const saveWaterReport = async (req, res) => {
       .doc(userId)
       .collection('userReports')
       .doc();
-
-    await reportDocRef.set(dataToSave);
+    const finalData = {
+        ...dataToSave,
+        id: reportDocRef.id, 
+        createdAt: new Date() 
+    };
+    
+    await reportDocRef.set(finalData);
 
     return res.status(200).json({
       status: "VERIFIED",
