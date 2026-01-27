@@ -33,7 +33,6 @@ function ensureGeoJsonFormat(geometry) {
     }
     return geometry;
 }
-
 export async function generateCoastalReport(req, res) {
     try {
         // CHANGE 1: Extract years from the request body
