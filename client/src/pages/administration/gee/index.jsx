@@ -119,7 +119,7 @@ export default function EnvironmentalHub() {
           </div>
           <div className="overflow-hidden">
             <h1 className="text-lg md:text-2xl font-black tracking-tighter text-slate-900 truncate">
-              UrbanFlow
+              CityBeat
             </h1>
             <p className="text-[10px] md:text-xs text-slate-500 font-bold tracking-widest uppercase truncate">
               Geospatial Intelligence

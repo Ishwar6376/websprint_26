@@ -12,6 +12,8 @@ export default function ComplaintsPage() {
   const navigate = useNavigate();
   const [userLocation, setUserLocation] = useState(null);
   const [viewMode, setViewMode] = useState("form"); 
+  const [mobileTab, setMobileTab] = useState("map");
+  
   const [mapRefreshTrigger, setMapRefreshTrigger] = useState(0);
 
   const { userAddress: detectedAddress, loading: addressLoading } = useReverseGeocoding(
@@ -31,9 +33,11 @@ export default function ComplaintsPage() {
     <div className="relative h-screen w-full bg-slate-950 text-white flex flex-col overflow-hidden font-sans selection:bg-white/20">
       
       {/* 1. Global Background */}
+      {/* 1. Global Ambient Background (Gradient ONLY - No FloatingLines here) */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-zinc-950 to-black" />
         <FloatingLines className="opacity-10 text-white" /> 
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950" />
       </div>
 
       {/* 2. Header */}
@@ -56,21 +60,6 @@ export default function ComplaintsPage() {
             </div>
           </div>
         </div>
-
-        {/* Desktop Toggle Button */}
-        {userLocation && (
-            <Button 
-                variant="outline" 
-                className="hidden md:flex gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-xs uppercase tracking-wider font-bold transition-all"
-                onClick={() => setViewMode(prev => prev === "form" ? "map" : "form")}
-            >
-                {viewMode === "form" ? (
-                    <>View Heatmap <MapIcon className="w-3 h-3" /></>
-                ) : (
-                    <>Submit Report <List className="w-3 h-3" /></>
-                )}
-            </Button>
-        )}
       </header>
 
       {/* 3. Main Content Area */}
@@ -83,6 +72,7 @@ export default function ComplaintsPage() {
         ) : (
           <>
             {/* --- VIEW 1: REPORT PANEL (Centered Card) --- */}
+            {/* Sidebar Container (Now includes FloatingLines) */}
             <div 
               className={`
                 w-full h-full md:h-[85vh] md:max-w-lg 
@@ -104,6 +94,7 @@ export default function ComplaintsPage() {
                         onReportSubmitGlobal={handleReportSubmitted}
                     />
                  </div>
+              </div>
 
                  {/* [FIX] Mobile Button is now 'flex-none' (Footer).
                     It sits naturally below the sidebar, not covering it.
@@ -117,7 +108,6 @@ export default function ComplaintsPage() {
                     </Button>
                  </div>
               </div>
-            </div>
 
             {/* --- VIEW 2: MAP (Full Screen) --- */}
             <div 

@@ -9,8 +9,8 @@ import {
   LogOut, 
   Shield, 
   Briefcase, 
-  Heart,
-  Landmark
+  Megaphone, // Imported Megaphone for Complaints
+  Heart
 } from "lucide-react";
 import { FireSOSButton } from "./fireAlert.jsx"
 const FEATURES = [
@@ -24,10 +24,10 @@ const FEATURES = [
   },
   {
     id: "reports",
-    title: "Civic Connect",
+    title: "CivicConnect",
     description: "Submit grievances related to infrastructure, electricity, water, and waste management",
     route: "/reports",
-    icon: Landmark,
+    icon: Megaphone,
     color: "blue"
   },
 
@@ -79,11 +79,11 @@ export default function App() {
         <div className="flex items-center gap-4 select-none">
           <img 
             src={logo} 
-            alt="UrbanFlow Logo" 
+            alt="CityBeat Logo" 
             className="h-12 w-auto object-contain"
           />
           <h1 className="text-2xl font-black tracking-tighter text-white">
-            Urban<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">Flow</span>
+            City<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">Beat</span>
           </h1>
         </div>
 
