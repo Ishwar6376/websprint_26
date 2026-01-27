@@ -1,10 +1,17 @@
 import { db } from "../firebaseadmin/firebaseadmin.js";
 import { asyncHandler } from "../utils/aysncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { uploadImage } from "../services/uploadImage.js";
 
 /* ================= CREATE DONATION ================= */
 export const createDonation = asyncHandler(async (req, res) => {
-  const { category, description, address, lat, lng, time, donorName, } = req.body;
+  const { category, description, address, lat, lng, time, donorName } = req.body;
+
+  // 🔐 AUTH0 USER
+  const donorId = req.auth?.payload?.sub;
+  if (!donorId) {
+    return res.status(401).json(new ApiResponse(401, null, "Unauthorized"));
+  }
 
   /* ---------- VALIDATION ---------- */
   if (
@@ -13,66 +20,65 @@ export const createDonation = asyncHandler(async (req, res) => {
     !address ||
     lat === undefined ||
     lng === undefined ||
-    !time||
-    !donorName // ✅ ADD THIS
+    !time ||
+    !donorName
   ) {
     return res
       .status(400)
       .json(new ApiResponse(400, null, "All fields are required"));
   }
 
-  if (typeof lat !== "number" || typeof lng !== "number") {
-    return res
-      .status(400)
-      .json(
-        new ApiResponse(400, null, "Latitude and Longitude must be numbers")
-      );
+  /* ---------- IMAGE UPLOAD ---------- */
+  let imageUrl = "";
+  if (req.file) {
+    imageUrl = await uploadImage(req.file.buffer);
   }
 
-  /* ---------- AUTH ---------- */
-  const donorId = req.auth.payload.sub; // ✅ Auth0 user
+  /* ---------- SAVE TO FIREBASE ---------- */
+  const newDonationRef = db.collection("donations").doc();
 
-  /* ---------- CREATE DONATION ---------- */
-  const donationRef = await db.collection("donations").add({
+  await newDonationRef.set({
     category,
     description,
     address,
-    lat,
-    lng,
+    lat: Number(lat),
+    lng: Number(lng),
     time,
-    donorId,
     donorName,
+    donorId,       // ✅ auth user
+    image: imageUrl, // ✅ cloudinary url
+    status: "pending",
     createdAt: new Date(),
   });
 
   return res
     .status(201)
-    .json(
-      new ApiResponse(
-        201,
-        { id: donationRef.id },
-        "Donation created successfully"
-      )
-    );
+    .json(new ApiResponse(201, { id: newDonationRef.id }, "Donation created"));
 });
+
 /* ================= GET DONATIONS ================= */
 export const getDonations = asyncHandler(async (req, res) => {
   const { category } = req.query;
 
-  let query = db.collection("donations");
+  const snapshot = await db
+    .collection("donations")
+    .where("category", "==", category)
+    .where("status", "==", "pending")
+    .get();
 
-  if (category) {
-    query = query.where("category", "==", category.toLowerCase());
-  }
+  const donations = snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      description: data.description,
+      address: data.address,
+      lat: data.lat,
+      lng: data.lng,
+      time: data.time,
+      donorName: data.donorName,
+      image: data.image || "", // 🔥 IMAGE SENT TO FRONTEND
+    };
+  });
 
-  const snapshot = await query.orderBy("createdAt", "desc").get();
-
-  const donations = snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, donations, "Donations fetched successfully"));
+  res.status(200).json({ data: donations });
 });
