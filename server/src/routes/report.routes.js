@@ -11,6 +11,8 @@ import { updateWaterReports } from "../controllers/updateReports/waterUpdate.js"
 import { updateelectricityReports } from "../controllers/updateReports/electricityUpdate.js"
 import {fetch3Reports} from "../controllers/fetchReports/fetch3Reports.js"
 import { checkJwt } from "../auth/authMiddleware.js"
+import {resolveReport} from "../controllers/report/report.controller.js"
+
 router.post('/waterReports',saveWaterReport)
 router.post('/wasteReports',saveWasteReport)
 router.post('/infrastructureReports',saveInfrastructureReport)
@@ -21,4 +23,6 @@ router.post('/updatewasteReports',updateWasteReports)
 router.post('/updateinfrastructureReports',updateInfrastructureReports)
 router.post('/updateelectricityReports',updateelectricityReports)
 router.post('/fetch3Reports',checkJwt,fetch3Reports)
+router.put('/resolve',resolveReport)
+
 export default router
