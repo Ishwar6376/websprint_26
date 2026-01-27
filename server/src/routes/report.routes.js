@@ -9,6 +9,9 @@ import { updateInfrastructureReports } from "../controllers/updateReports/infraU
 import { updateWasteReports } from "../controllers/updateReports/wasteUpdate.js"
 import { updateWaterReports } from "../controllers/updateReports/waterUpdate.js"
 import { updateelectricityReports } from "../controllers/updateReports/electricityUpdate.js"
+import { saveFireReport } from "../controllers/aiReports/fireReports.js";          // 🔥 NEW
+import { updateFireReports } from "../controllers/updateReports/fireUpdate.js";    // 🔥 NEW
+
 router.post('/waterReports',saveWaterReport)
 router.post('/wasteReports',saveWasteReport)
 router.post('/infrastructureReports',saveInfrastructureReport)
@@ -18,5 +21,8 @@ router.post('/updatewaterReports',updateWaterReports)
 router.post('/updatewasteReports',updateWasteReports)
 router.post('/updateinfrastructureReports',updateInfrastructureReports)
 router.post('/updateelectricityReports',updateelectricityReports)
+router.post('/fireReports', saveFireReport);                // 🔥 NEW
+router.post('/updatefireReports', updateFireReports);       // 🔥 NEW
+
 
 export default router

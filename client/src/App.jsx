@@ -42,6 +42,9 @@ import AssignWaterTask from "./pages/administration/muncipal/water/assignWaterTa
 import ElectricityStaffDashboard from "./pages/staff/electricity/ElectricityStaff";
 import ElectricityAdmin from "./pages/administration/muncipal/electricity/electricity";
 import AssignElectricityTask from "./pages/administration/muncipal/electricity/assignTask";
+import FireAdmin from "./pages/administration/muncipal/fire/fire";
+import AssignFireTask from "./pages/administration/muncipal/fire/assignTask";
+import FireStaffDashboard from "./pages/staff/fire/fireStaff";
 
 
  
@@ -319,6 +322,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/administration/municipal/fire"
+              element={
+                <ProtectedRoute>
+                  <FireAdmin />
+                </ProtectedRoute>
+              }
+            />
 
 
           {/* staff  */}
@@ -354,6 +365,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+          path="/staff/fire"
+          element={
+            <ProtectedRoute>
+              <FireStaffDashboard />
+            </ProtectedRoute>
+          }
+        />
 
 
 
@@ -386,6 +405,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AssignElectricityTask />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assign/fire/:geoHash"
+            element={
+              <ProtectedRoute>
+                <AssignFireTask />
               </ProtectedRoute>
             }
           />
