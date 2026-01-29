@@ -45,7 +45,6 @@ import ElectricityStaffDashboard from "./pages/staff/electricity/ElectricityStaf
 import ElectricityAdmin from "./pages/administration/muncipal/electricity/electricity";
 import AssignElectricityTask from "./pages/administration/muncipal/electricity/assignTask";
 import FireAdmin from "./pages/administration/muncipal/fire/fire";
-import AssignFireTask from "./pages/administration/muncipal/fire/assignTask";
 import FireStaffDashboard from "./pages/staff/fire/fireStaff";
 
 
@@ -437,19 +436,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/assign/fire/:geoHash"
-            element={
-              <ProtectedRoute>
-                <AssignFireTask />
-              </ProtectedRoute>
-            }
-          />
-
-
-
-
-
       </Routes>
     </>
 
