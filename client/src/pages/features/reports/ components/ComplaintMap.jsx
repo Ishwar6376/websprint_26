@@ -53,18 +53,18 @@ export default function ComplaintMap({ userLocation }) {
     }
   };
 
- const handleVote = async (report, type) => {
+const handleVote = async (report, type) => {
   try {
     await fetch(`${import.meta.env.VITE_API_URL}/map-reports/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        path: report.path,   // 🔥 THIS IS KEY
-        type
+        path: report.path,   // 🔥 THIS IS THE KEY
+        type: type
       })
     });
 
-    // instant UI update
+    // update UI instantly
     setSelected(prev => ({
       ...prev,
       reports: prev.reports.map(r =>
@@ -78,7 +78,6 @@ export default function ComplaintMap({ userLocation }) {
     console.error("Vote failed:", err);
   }
 };
-
 
 
   return (
@@ -103,8 +102,14 @@ export default function ComplaintMap({ userLocation }) {
                 <b>{r.title}</b>
                 <p>{r.description}</p>
 
-               <button onClick={() => handleVote(r, "upvote")}>👍 {r.upvotes || 0}</button>
-<button onClick={() => handleVote(r, "downvote")}>👎 {r.downvotes || 0}</button>
+               <button onClick={() => handleVote(r, "upvote")}>
+  👍 {r.upvotes || 0}
+</button>
+
+<button onClick={() => handleVote(r, "downvote")}>
+  👎 {r.downvotes || 0}
+</button>
+
 
               </div>
             ))}
