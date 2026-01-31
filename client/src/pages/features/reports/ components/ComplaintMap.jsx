@@ -1,4 +1,4 @@
-import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 
 const containerStyle = { width: "100%", height: "100%" };
@@ -12,28 +12,18 @@ const icons = {
 };
 
 export default function ComplaintMap({ userLocation }) {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script", // MUST be same everywhere
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  });
-
   const [markers, setMarkers] = useState([]);
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    if (isLoaded) fetchReports();
-  }, [isLoaded]);
+    fetchReports();
+  }, []);
 
   const fetchReports = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/map-reports`);
-      const result = await res.json();
-
-      console.log("RAW API RESPONSE:", result);
-
-      const reports = result.data; // 🔥 FIX
-
-      console.log("REPORTS ARRAY:", reports);
+      const json = await res.json();
+      const reports = json.data || [];
 
       const grouped = {};
 
@@ -41,10 +31,10 @@ export default function ComplaintMap({ userLocation }) {
         const lat = parseFloat(r.location?.lat);
         const lng = parseFloat(r.location?.lng);
 
-        if (!lat || !lng) return;
+        // ✅ FIXED CHECK
+        if (isNaN(lat) || isNaN(lng)) return;
 
-        const key = `${lat.toFixed(4)}_${lng.toFixed(4)}_${r.department}`;
-
+        const key = `${lat}_${lng}_${r.department}`;
         if (!grouped[key]) grouped[key] = [];
         grouped[key].push({ ...r, lat, lng });
       });
@@ -56,8 +46,6 @@ export default function ComplaintMap({ userLocation }) {
         reports: group
       }));
 
-      console.log("MARKERS CREATED:", markerData);
-
       setMarkers(markerData);
 
     } catch (err) {
@@ -65,14 +53,36 @@ export default function ComplaintMap({ userLocation }) {
     }
   };
 
-  if (!isLoaded) return <div>Loading Map...</div>;
+ const handleVote = async (report, type) => {
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/map-reports/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path: report.path,   // 🔥 THIS IS KEY
+        type
+      })
+    });
+
+    // instant UI update
+    setSelected(prev => ({
+      ...prev,
+      reports: prev.reports.map(r =>
+        r.id === report.id
+          ? { ...r, [type === "upvote" ? "upvotes" : "downvotes"]: (r[type === "upvote" ? "upvotes" : "downvotes"] || 0) + 1 }
+          : r
+      )
+    }));
+
+  } catch (err) {
+    console.error("Vote failed:", err);
+  }
+};
+
+
 
   return (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={userLocation || { lat: 25.4935, lng: 81.8673 }}
-      zoom={14}
-    >
+    <GoogleMap mapContainerStyle={containerStyle} center={userLocation} zoom={14}>
       {markers.map((m, i) => (
         <Marker
           key={i}
@@ -83,19 +93,19 @@ export default function ComplaintMap({ userLocation }) {
       ))}
 
       {selected && (
-        <InfoWindow
-          position={{ lat: selected.lat, lng: selected.lng }}
-          onCloseClick={() => setSelected(null)}
-        >
+        <InfoWindow position={{ lat: selected.lat, lng: selected.lng }} onCloseClick={() => setSelected(null)}>
           <div style={{ maxHeight: 260, overflowY: "auto", width: 260, color: "black" }}>
             <h3>{selected.department} Complaints</h3>
 
             {selected.reports.map(r => (
               <div key={r.id} style={{ borderBottom: "1px solid #ccc", marginBottom: 8 }}>
-                <img src={r.imageUrl} width="100%" alt="report" />
+                <img src={r.imageUrl} width="100%" />
                 <b>{r.title}</b>
                 <p>{r.description}</p>
-                <div>👍 {r.upvotes || 0} | 👎 {r.downvotes || 0}</div>
+
+               <button onClick={() => handleVote(r, "upvote")}>👍 {r.upvotes || 0}</button>
+<button onClick={() => handleVote(r, "downvote")}>👎 {r.downvotes || 0}</button>
+
               </div>
             ))}
           </div>
