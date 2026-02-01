@@ -33,7 +33,7 @@ export const fetchWasteZones = async (req, res) => {
     const zonesMap = {};
 
     rawReports.forEach((report) => {
-      const localityKey = report.geohash.substring(0, 5);
+      const localityKey = report.geohash.substring(0, 6);
 
       if (!zonesMap[localityKey]) {
         zonesMap[localityKey] = {

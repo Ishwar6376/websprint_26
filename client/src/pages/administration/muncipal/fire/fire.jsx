@@ -469,8 +469,30 @@ export default function FireAdmin() {
           ) : !selectedZone ? (
              /* --- VIEW 2: LIVE GRID --- */
              <>
-                <h2 className="text-3xl font-black mb-2">Active Fire Zones</h2>
-                <p className="text-slate-500 mb-6">Real-time Hotspots Grouped by Localities</p>
+           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border-l-4 border-l-orange-600 border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all">
+  <div>
+    <div className="flex items-center gap-2 mb-1">
+      <div className="relative flex h-3 w-3">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-600"></span>
+      </div>
+      <h3 className="text-slate-900 font-bold text-xl tracking-tight">Active Fire Zones</h3>
+    </div>
+    <p className="text-slate-500 text-sm">
+      Real-time Hotspots Grouped by <span className="font-semibold text-slate-700">Localities</span>
+    </p>
+  </div>
+  
+  <button
+    onClick={() => navigate("/admin-map/FIRE")}
+    className="group flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-orange-200 hover:shadow-xl active:scale-95"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.5-7 3 3 3 6 3 6s-2-1-3-1c0 1 0 3 2 5 2-1 3-3 3-3s0 3-1.5 5.5a7.002 7.002 0 01-1.343 3.157z" />
+    </svg>
+    <span className="text-sm uppercase tracking-wider">Open Fire Map</span>
+  </button>
+</div>
                 {loading ? <div className="text-slate-400">Syncing...</div> : zones.length === 0 ? <div className="text-slate-400 text-center py-20">No active fire alerts.</div> : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {zones.map(zone => {
@@ -569,7 +591,9 @@ export default function FireAdmin() {
                                 <button disabled className="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 border bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed">
                                    <Clock className="w-3 h-3" /> Preparing...
                                 </button>
+                                
                               )
+                              
                             )}
                           </div>
                         </div>
@@ -583,6 +607,15 @@ export default function FireAdmin() {
                       <p>No reports found in this category.</p>
                    </div>
                 )}
+                <button
+  onClick={() => navigate("/admin-map/FIRE")}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Fire Complaints Map
+</button>
+
+     
+
               </div>
             </div>
           )}

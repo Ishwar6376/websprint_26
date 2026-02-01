@@ -1,5 +1,5 @@
 import { db } from '../../firebaseadmin/firebaseadmin.js';
-import ngeohash from 'ngeohash'; // You likely need this package
+import ngeohash from 'ngeohash'; 
 
 function getDistanceInMeters(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
@@ -45,6 +45,12 @@ export const wasteCheck = async (req, res) => {
         reportsSnapshot.forEach(reportDoc => {
           const reportData = reportDoc.data();
 
+          // --- CHANGE START: Skip reports that are already RESOLVED ---
+          if (reportData.status === "RESOLVED") {
+            return; 
+          }
+          // --- CHANGE END ---
+
           if (reportData.location?.lat && reportData.location?.lng) {
             const distance = getDistanceInMeters(
               location.lat,
@@ -69,7 +75,7 @@ export const wasteCheck = async (req, res) => {
     }));
 
     if (closestReport) {
-      console.log(`[Waste] Duplicate found. Distance: ${closestReport.distance}m`);
+      console.log(`[Waste] Duplicate found (Active). Distance: ${closestReport.distance}m`);
       return res.status(200).json({ duplicateFound: true, data: closestReport });
     }
 

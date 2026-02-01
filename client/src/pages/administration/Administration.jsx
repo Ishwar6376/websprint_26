@@ -24,12 +24,33 @@ export default function CityAdminHub() {
   const { setUser, user: storedUser } = useAuthStore()
   const [transitionStage, setTransitionStage] = useState('idle')
   const [isBarActive, setIsBarActive] = useState(false)
+  const [showComplaintsMap, setShowComplaintsMap] = useState(false)
+  const [complaintCount, setComplaintCount] = useState(0);
+
+
   
   useEffect(() => {
     if (auth0User && !storedUser) {
       setUser(auth0User)
     }
   }, [auth0User, storedUser, setUser])
+  useEffect(() => {
+  const fetchComplaintCount = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/map-reports`);
+      const data = await res.json();
+
+      if (data.success) {
+        setComplaintCount(data.data.length);
+      }
+    } catch (err) {
+      console.error("Error fetching complaint count", err);
+    }
+  };
+
+  fetchComplaintCount();
+}, []);
+
 
   // --- SECTION 1: INTELLIGENT SYSTEMS (Original Admin Features) ---
   const COMMAND_SYSTEMS = [
@@ -51,6 +72,10 @@ export default function CityAdminHub() {
       theme: "rose",
       specialAction: false
     },
+    
+   
+
+   
   ]
 
   // --- SECTION 2: DEPARTMENTAL OPERATIONS (New Municipal Features) ---
@@ -197,6 +222,24 @@ export default function CityAdminHub() {
               Monitor real-time urban analytics and manage municipal department workflows from a unified interface.
             </p>
           </div>
+          <div className="flex justify-center mb-12">
+              <div className="flex justify-center mb-10">
+  <button
+    onClick={() => navigate("/administration/complaints-map")}
+    className="relative bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl transition-all"
+  >
+     View Public Complaints Map
+
+    {/* 🔴 LIVE COUNT BADGE */}
+    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-7 h-7 flex items-center justify-center rounded-full shadow-lg">
+      {complaintCount}
+    </span>
+  </button>
+</div>
+
+            </div>
+            
+
 
           {/* === 1. CENTRAL COMMAND SYSTEMS (Top Large Cards) === */}
           <div className="mb-12">

@@ -135,10 +135,33 @@ export default function ElectricityAdmin() {
             <div className="mb-8">
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
                 Active Zones
+
               </h2>
-              <p className="text-slate-500">
-                Electricity faults grouped by 5km² Geohash clusters
-              </p>
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-amber-200 transition-colors">
+  <div>
+    <div className="flex items-center gap-2 mb-1">
+      <div className="p-1.5 bg-amber-100 rounded-md">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <h3 className="text-slate-900 font-semibold text-lg">Electricity Analysis</h3>
+    </div>
+    <p className="text-slate-500 text-sm italic">
+      Electricity faults grouped by 5km² Geohash clusters
+    </p>
+  </div>
+  
+  <button
+    onClick={() => navigate("/admin-map/ELECTRICITY")}
+    className="group flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-amber-100 hover:shadow-lg active:scale-95"
+  >
+    <span className="text-sm">View Electricity Map</span>
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    </svg>
+  </button>
+</div>
             </div>
 
             {loading ? (
@@ -326,6 +349,10 @@ export default function ElectricityAdmin() {
                           >
                             <ExternalLink className="w-3 h-3" /> Track
                           </button>
+  
+
+                         
+
                         </div>
                       </div>
                     </div>

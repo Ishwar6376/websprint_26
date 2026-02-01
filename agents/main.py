@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from brain.layel_1 import app_graph, FrontendMessage
 from brain.layel_2 import surveillance_agent
 from brain.agent3 import analyze_emergency
+from brain.resolveWasteAgent import workflow
 
 # [CHANGE 1: Renamed 'app' to 'report_agent' to avoid conflict with FastAPI app]
 from brain.orchestrator import app as report_agent 
@@ -54,9 +55,9 @@ class ReportRequest(BaseModel):
     address: str
     status: str
     geohash: str
-
-# --- AUTH HELPER ---
-
+class WasteReportRequest(BaseModel):
+    imageUrl:str
+    staffimageUrl:str
 def fetch_user_profile(access_token: str):
     url = f"https://{AUTH0_DOMAIN}/userinfo"
     headers = {
@@ -114,7 +115,26 @@ def get_user_from_token(authorization: str = Header(...)):
 
 
 # --- ENDPOINTS ---
+@app.post("/resolveWasteReports")
+async def resolve_waste_report(req: WasteReportRequest):
+    try:
+        initial_report_state = {
+            "imageUrl": req.imageUrl,
+            "staffimageUrl": req.staffimageUrl,
+        }
+        print(f"Initial State: {initial_report_state}")
+        final_state = await workflow.ainvoke(initial_report_state)
+        confidence_data = final_state.get("confidence_result")
 
+        if not confidence_data:
+            raise HTTPException(status_code=500, detail="Analysis completed but no result returned.")
+        return {
+            "success": True,
+            "confidence_result": confidence_data.model_dump()
+        }
+    except Exception as e:
+        print(f"Error in Report Endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"Orchestration Failed: {str(e)}")
 @app.post("/reports")
 async def create_report(
     req: ReportRequest, 

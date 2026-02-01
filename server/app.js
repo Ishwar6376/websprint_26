@@ -21,9 +21,18 @@ import voiceRoutes from "./src/routes/voiceRoutes.js"
 import localityRoutes from "./src/routes/locality.routes.js"
 import reportRoutes from "./src/routes/report.routes.js"
 import userRoutes from "./src/routes/user.routes.js"
+import mapReports from "./src/routes/mapReports.js";
+import departmentMapRoutes from "./src/routes/departmentMap.routes.js";
+
+
+
+
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // 🔥 FIXES req.body undefined
+
+
 
 console.log("CORS ORIGIN:", process.env.CORS_ORIGIN);
 
@@ -103,9 +112,11 @@ app.use("/api/complaint-stats",complaintStatsRoutes);
 app.use("/api/complaint-history",complaintHistoryRoutes);
 app.use("/api/voice",voiceRoutes);
 app.use("/api/locality",localityRoutes)
-// app.use("/api/reports",reportRoutes)
 app.use("/api/user",userRoutes)
 app.use("/api/reports",reportRoutes)
+app.use("/map-reports", mapReports);
+app.use("/department-map", departmentMapRoutes);
+
 
 app.get("/health", (req, res) => res.status(200).json({ message: "server is healthy" }));
 

@@ -47,6 +47,9 @@ export const infraCheck = async (req, res) => {
 
         reportsSnapshot.forEach(reportDoc => {
           const reportData = reportDoc.data();
+          if (reportData.status === "RESOLVED") {
+            return; 
+          }
 
           if (reportData.location?.lat && reportData.location?.lng) {
             const distance = getDistanceInMeters(

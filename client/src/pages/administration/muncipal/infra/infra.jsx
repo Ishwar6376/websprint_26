@@ -150,9 +150,24 @@ export default function InfraAdmin() {
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
                 Infrastructure Zones
               </h2>
-              <p className="text-slate-500">
-                Structural reports grouped by 5km² Geohash clusters
-              </p>
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-slate-200 rounded-xl shadow-sm">
+  <div>
+    <h3 className="text-slate-900 font-semibold text-lg">Infrastructure Analysis</h3>
+    <p className="text-slate-500 text-sm italic">
+      Structural reports grouped by 5km² Geohash clusters
+    </p>
+  </div>
+  
+  <button
+    onClick={() => navigate("/admin-map/INFRASTRUCTURE")}
+    className="group flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-medium px-5 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-rose-200 hover:shadow-lg active:scale-95"
+  >
+    <span className="text-sm">View Complaints Map</span>
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+    </svg>
+  </button>
+</div>
             </div>
 
             {loading ? (
@@ -371,6 +386,10 @@ export default function InfraAdmin() {
                                         <ExternalLink className="w-3 h-3" />
                                         Details
                                     </button>
+         
+
+                                    
+
                                 </div>
                             </div>
                         </div>
