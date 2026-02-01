@@ -1,5 +1,5 @@
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from "@react-google-maps/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
 // Standard Hook for loading Maps across the app
@@ -54,26 +54,57 @@ export default function DepartmentComplaintMap() {
     fetchReports();
   }, [department]);
 
+  // NEW: Calculate specific department total
+  const totalInDepartment = useMemo(() => markers.length, [markers]);
+
   if (!isLoaded) return <div className="bg-black h-screen flex items-center justify-center text-white font-bold">LOADING GOOGLE MAPS...</div>;
 
   return (
     <div className="fixed inset-0 bg-black z-50">
+      {/* HEADER BAR */}
       <div className="absolute top-0 left-0 right-0 h-14 bg-zinc-900 text-white flex items-center justify-between px-4 z-50 border-b border-white/10 shadow-lg">
-        <h2 className="font-bold text-sm uppercase tracking-wider">📍 {department} Department Feed</h2>
+        <div className="flex items-center gap-4">
+            <h2 className="font-bold text-sm uppercase tracking-wider">📍 {department} Feed</h2>
+            <div className="bg-zinc-800 border border-zinc-700 px-3 py-1 rounded-full flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-[10px] font-bold text-zinc-300">ACTIVE REPORTS: {totalInDepartment}</span>
+            </div>
+        </div>
         <button onClick={() => window.history.back()} className="bg-red-600 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-red-500 transition-colors">
           ← BACK
         </button>
       </div>
 
+      {/* FLOATING DEPT SUMMARY CARD */}
+     {/* FLOATING DEPT SUMMARY CARD - Adjusted to be lower (top-32) */}
+<div className="absolute top-32 left-4 z-40">
+  <div className="bg-white/95 backdrop-blur-md p-3 rounded-xl shadow-2xl border border-gray-200 flex items-center gap-4 min-w-[180px]">
+      <div className="bg-zinc-100 p-2 rounded-lg">
+          <img 
+            src={icons[department] || "/icons/default-map-report.png"} 
+            className="w-8 h-8 object-contain" 
+            alt="icon" 
+          />
+      </div>
+      <div>
+          <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">
+            Total {department}
+          </p>
+          <p className="text-xl font-black text-zinc-900 leading-none">
+            {totalInDepartment}
+          </p>
+      </div>
+  </div>
+</div>
+
       <div className="pt-14 h-full">
         <GoogleMap 
           mapContainerStyle={containerStyle} 
-          // Centered on India
           center={{ lat: 20.5937, lng: 78.9629 }} 
           zoom={5}
           options={{
             streetViewControl: false,
-            mapTypeControl: true, // Allows users to switch to Satellite view if needed
+            mapTypeControl: true,
             fullscreenControl: false,
           }}
         >
@@ -83,7 +114,6 @@ export default function DepartmentComplaintMap() {
               position={{ lat: r.lat, lng: r.lng }}
               icon={{
                 url: icons[r.department] || "/icons/default-map-report.png",
-                // Increased size (45x45) for better visibility
                 scaledSize: new window.google.maps.Size(45, 45),
                 origin: new window.google.maps.Point(0, 0),
                 anchor: new window.google.maps.Point(22, 22),
@@ -99,7 +129,7 @@ export default function DepartmentComplaintMap() {
             >
               <div className="p-1 max-w-[220px] text-black">
                 {selected.imageUrl && (
-                    <img src={selected.imageUrl} className="w-full rounded-md mb-2 border border-zinc-200" alt="report" />
+                    <img src={selected.imageUrl} className="w-full h-32 object-cover rounded-md mb-2 border border-zinc-200" alt="report" />
                 )}
                 <h4 className="font-bold text-sm mb-1">{selected.title}</h4>
                 <p className="text-[11px] leading-tight text-zinc-600 mb-2">{selected.description}</p>
