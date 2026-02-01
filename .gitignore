@@ -4,7 +4,6 @@ client/node_modules/
 server/node_modules/
 agents/venv
 server/venv
-client/src/firebase/firebase.js
 agents/__pycache__
 agents/brain/__pycache__
 agents/brain/__init__.py

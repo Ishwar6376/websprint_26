@@ -95,14 +95,12 @@ CityBeat operates on a microservices architecture designed for high availability
 - **Databases:**
   - **MongoDB:** Stores complex grievance records and user profiles.
   - **Firebase Realtime Database:** Manages live SOS signaling and chat functions.
-  - **Cloudinary:** Handles storage for report images and verification photos.
-
-### **Google Integration Suite**
-
+  - **Cloudinary:** Handles storage for report images and verification photos.  
 - **Google Earth Engine:** Processes satellite imagery for environmental insights.
 - **Google Maps Platform:** Provides geolocation, routing, and map visualization.
 - **Google Cloud Vertex AI:** Powers the machine learning models for visual and audio recognition.
 - **Firebase:** Manages authentication and push notifications for field staff and users.
+- **RabbitMQ:** Notification services.
 
 ---
 

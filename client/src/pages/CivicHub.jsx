@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { FireSOSButton } from "./fireAlert.jsx"
 import { ref, onValue, off, update, get } from "firebase/database";
-import { db } from "../firebase/firebase"; 
+import { db } from "../firebase/firebase.js"; 
 
 const getDistanceInMeters = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3; 
