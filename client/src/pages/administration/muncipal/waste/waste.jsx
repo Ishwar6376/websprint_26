@@ -153,6 +153,12 @@ export default function WasteAdmin() {
               </h2>
               <p className="text-slate-500">
                 Localities grouped by 5km² Geohash clusters
+                                  <button
+  onClick={() => navigate("/admin-map/WASTE")}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Waste Complaints Map
+</button>
               </p>
             </div>
 
@@ -411,6 +417,10 @@ export default function WasteAdmin() {
                              <ExternalLink className="w-3 h-3" />
                              Track
                           </button>
+     
+
+          
+
                         </div>
                       </div>
                     </div>

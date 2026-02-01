@@ -47,6 +47,8 @@ import AssignElectricityTask from "./pages/administration/muncipal/electricity/a
 import FireAdmin from "./pages/administration/muncipal/fire/fire";
 import FireStaffDashboard from "./pages/staff/fire/firestaff";
 import AdminComplaintsMap from "./pages/administration/ComplaintsMapAdmin";
+import DepartmentComplaintMap from "./pages/administration/DepartmentComplaintMap";
+
 
 
  
@@ -360,6 +362,12 @@ function App() {
               }
             />
             <Route path="/administration/complaints-map" element={<AdminComplaintsMap />} />
+           <Route
+  path="/admin-map/:department"
+  element={<DepartmentComplaintMap />}
+/>
+
+
 
 
 
@@ -440,6 +448,7 @@ function App() {
             }
           />
       </Routes>
+      
     </>
 
   );

@@ -152,9 +152,18 @@ export default function WaterAdmin() {
                 Active Zones
               </h2>
               <p className="text-slate-500">
-                Localities grouped by 5km² Geohash clusters
+                Localities grouped by 5km² Geohash clusters.    
+                        <button
+  onClick={() => (navigate(`/admin-map/WATER`)
+)}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Water Complaints Map
+</button>
               </p>
             </div>
+    
+
 
             {loading ? (
               <div className="flex items-center justify-center h-64 text-slate-400 gap-3">
@@ -409,6 +418,8 @@ export default function WaterAdmin() {
                              <ExternalLink className="w-3 h-3" />
                              Track
                           </button>
+
+                          
                         </div>
                       </div>
                     </div>

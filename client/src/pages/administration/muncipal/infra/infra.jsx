@@ -152,6 +152,12 @@ export default function InfraAdmin() {
               </h2>
               <p className="text-slate-500">
                 Structural reports grouped by 5km² Geohash clusters
+                                           <button
+  onClick={() => navigate("/admin-map/INFRASTRUCTURE")}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Infrastructure Complaints Map
+</button>
               </p>
             </div>
 
@@ -371,6 +377,10 @@ export default function InfraAdmin() {
                                         <ExternalLink className="w-3 h-3" />
                                         Details
                                     </button>
+         
+
+                                    
+
                                 </div>
                             </div>
                         </div>

@@ -469,8 +469,14 @@ export default function FireAdmin() {
           ) : !selectedZone ? (
              /* --- VIEW 2: LIVE GRID --- */
              <>
-                <h2 className="text-3xl font-black mb-2">Active Fire Zones</h2>
-                <p className="text-slate-500 mb-6">Real-time Hotspots Grouped by Localities</p>
+                <h2 className="text-3xl font-black mb-2">Active Fire Zones 
+                   </h2>
+                <p className="text-slate-500 mb-6">Real-time Hotspots Grouped by Localities             <button
+  onClick={() => navigate("/admin-map/FIRE")}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Fire Complaints Map
+</button></p>
                 {loading ? <div className="text-slate-400">Syncing...</div> : zones.length === 0 ? <div className="text-slate-400 text-center py-20">No active fire alerts.</div> : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {zones.map(zone => {
@@ -569,7 +575,9 @@ export default function FireAdmin() {
                                 <button disabled className="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 border bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed">
                                    <Clock className="w-3 h-3" /> Preparing...
                                 </button>
+                                
                               )
+                              
                             )}
                           </div>
                         </div>
@@ -583,6 +591,15 @@ export default function FireAdmin() {
                       <p>No reports found in this category.</p>
                    </div>
                 )}
+                <button
+  onClick={() => navigate("/admin-map/FIRE")}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Fire Complaints Map
+</button>
+
+     
+
               </div>
             </div>
           )}

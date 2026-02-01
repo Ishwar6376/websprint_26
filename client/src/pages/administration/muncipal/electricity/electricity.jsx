@@ -135,9 +135,16 @@ export default function ElectricityAdmin() {
             <div className="mb-8">
               <h2 className="text-3xl font-black text-slate-900 tracking-tight">
                 Active Zones
+
               </h2>
               <p className="text-slate-500">
                 Electricity faults grouped by 5km² Geohash clusters
+                                        <button
+  onClick={() => navigate("/admin-map/ELECTRICITY")}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  View Electricity Complaints Map
+</button>
               </p>
             </div>
 
@@ -326,6 +333,10 @@ export default function ElectricityAdmin() {
                           >
                             <ExternalLink className="w-3 h-3" /> Track
                           </button>
+  
+
+                         
+
                         </div>
                       </div>
                     </div>
