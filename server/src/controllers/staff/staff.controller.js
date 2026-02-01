@@ -1,5 +1,7 @@
 import {db} from ".././../firebaseadmin/firebaseadmin.js"
 import admin from 'firebase-admin';
+import {pushNotificationToUser} from "../../utils/pushNotification.js"
+
 export const getTask = async (req, res) => {
   try {
     const userId = req.auth?.payload?.sub; 
@@ -126,6 +128,78 @@ export const assignTask = async (req, res) => {
 
   } catch (error) {
     console.error("Error assigning task:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+export const resolveTask = async (req, res) => {
+  try {
+    const { taskId, proofImageUrl } = req.body;
+    const staffId = req.auth?.payload?.sub;
+
+    if (!proofImageUrl) {
+      return res.status(400).json({ message: "Proof image URL is required." });
+    }
+
+    const taskDoc = await db.collection('tasks').doc(taskId).get();
+    if (!taskDoc.exists) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    
+    const taskData = taskDoc.data();
+    const { reportId, reporterEmail, department } = taskData;
+
+
+    await taskDoc.ref.update({
+      status: 'USERVERIFICATION',
+      proofImageUrl: proofImageUrl,
+      resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    if (reportId) {
+      // 2. Update the Citizen's Report in Main DB
+      const reportSnapshot = await db.collectionGroup('userReports')
+        .where('id', '==', reportId)
+        .limit(1)
+        .get();
+
+      if (!reportSnapshot.empty) {
+        const reportDoc = reportSnapshot.docs[0];
+        const reportData = reportDoc.data();
+        
+        // CRITICAL FIX: Extract userId from report data
+        const reporterUid = reportData.userId; 
+
+        await reportDoc.ref.update({
+          status: "USERVERIFICATION",
+          proofImageUrl: proofImageUrl,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 3. Persistent Notification
+        const notificationRef = db.collection("notifications").doc();
+        const notificationPayload = {
+          id: notificationRef.id,
+          userId: reporterUid,
+          message: `Update: Your ${department} report has been resolved. Click to view proof.`,
+          type: 'success',
+          link: `/track/${reportId}`,
+          isRead: false,
+          createdAt: new Date().toISOString()
+        };
+
+        await notificationRef.set(notificationPayload);
+
+        // 4. Real-time Push
+        await pushNotificationToUser(reporterUid, notificationPayload);
+        
+        console.log(`Main DB Report ${reportId} updated and user ${reporterUid} notified.`);
+      }
+    }
+
+    res.status(200).json({ message: "Task resolved and citizen notified" });
+
+  } catch (error) {
+    console.error("Resolve Task Error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

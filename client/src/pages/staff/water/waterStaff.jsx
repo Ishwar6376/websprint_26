@@ -106,39 +106,50 @@ export default function WaterStaffDashboard() {
   }, [user]);
 
  
-  
+
   const handleUploadProof = async (taskId, event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    setUploadingId(taskId);
+  setUploadingId(taskId);
 
-    try {
-      const token = await getAccessTokenSilently();
-      const formData = new FormData();
-      formData.append("image", file);
-      formData.append("taskId", taskId);
+  try {
+    // 1. Upload to Cloudinary First
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("userId", user?.id || "anonymous");
+    formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
 
-     
-      await api.post("/api/staff/tasks/resolve", formData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        }
+     const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: formData
       });
+    const cloudData = await cloudRes.json();
+    console.log(cloudData);
+    const proofUrl = cloudData.secure_url;
 
-      
-      setTasks(prev => prev.filter(t => t.id !== taskId));
-      alert("Task completed successfully!");
+    const token = await getAccessTokenSilently();
+    await api.post("/api/staff/tasks/resolve", 
+      { 
+        taskId, 
+        proofImageUrl: proofUrl 
+      }, 
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
 
-    } catch (error) {
-      console.error("Upload failed", error);
-      alert("Failed to upload proof. Please try again.");
-    } finally {
-      setUploadingId(null);
-    }
-  };
+    // 3. Update UI
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+    alert("Resolution submitted! Waiting for user approval.");
 
+  } catch (error) {
+    console.error("Resolution failed", error);
+    alert("Failed to submit proof. Please check your connection.");
+  } finally {
+    setUploadingId(null);
+  }
+};
   const openMaps = (coords) => {
     // Check if coords exist before opening
     if (coords?.lat && coords?.lng) {

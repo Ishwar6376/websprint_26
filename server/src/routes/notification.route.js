@@ -6,6 +6,7 @@ import { checkJwt } from "../auth/authMiddleware.js";
 const router = express.Router();
 
 
+
 router.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
@@ -34,10 +35,22 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
+router.patch("/:notificationId/read", async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+
+    await db.collection("notifications").doc(notificationId).update({ isRead: true });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 router.post("/trigger", async (req, res) => {
   try {
-    const { userId, message, type } = req.body;
+
+    const { userId, message, type, link } = req.body; 
 
     const docRef = db.collection("notifications").doc();
     
@@ -46,21 +59,17 @@ router.post("/trigger", async (req, res) => {
       userId,
       message,
       type: type || 'info',
+      link: link || null, 
       isRead: false,
       createdAt: new Date().toISOString()
     };
 
-    
     await docRef.set(notificationData);
-
-    
     await pushNotificationToUser(userId, notificationData);
 
     res.json({ success: true, data: notificationData });
   } catch (error) {
-    console.error("Error triggering notification:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 export default router;

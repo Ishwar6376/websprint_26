@@ -1,50 +1,88 @@
 import React from 'react';
-import { Bell, Wifi, WifiOff, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useNotifications } from "../context/NotificationContext"; // Import hook
+import { useNavigate } from 'react-router-dom';
+import { Bell, Wifi, WifiOff, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { useNotifications } from "../context/NotificationContext";
 
 const NotificationFeed = ({ limit }) => {
-  const { notifications, connectionStatus } = useNotifications();
+  const { notifications, connectionStatus, markAsRead } = useNotifications();
+  const navigate = useNavigate();
 
   const displayNotifications = limit ? notifications.slice(0, limit) : notifications;
 
+  const handleAction = (notif) => {
+    // 1. Mark as read in DB/State
+    if (!notif.isRead) markAsRead(notif.id);
+
+    // 2. Navigation Logic
+    if (notif.link) {
+      if (notif.link.startsWith('http')) {
+        window.open(notif.link, '_blank');
+      } else {
+        // Force absolute routing by ensuring a leading slash
+        const path = notif.link.startsWith('/') ? notif.link : `/${notif.link}`;
+        navigate(path);
+      }
+    }
+  };
+
   return (
-    <div className="w-full bg-slate-900 text-slate-100 flex flex-col h-full">
+    <div className="w-full bg-slate-900 border border-white/10 rounded-xl overflow-hidden flex flex-col h-[500px]">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-3 border-b border-white/5 bg-black/20 shrink-0">
-        <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-          Real-time Feed
-        </span>
-        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium transition-colors ${
-          connectionStatus === 'Connected' 
-            ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' 
-            : 'text-amber-400 bg-amber-400/10 border-amber-400/20'
+      <div className="px-4 py-3 bg-white/5 border-b border-white/10 flex justify-between items-center">
+        <h3 className="text-sm font-bold text-white tracking-widest uppercase">Activity</h3>
+        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+          connectionStatus === 'Connected' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
         }`}>
-          {connectionStatus === 'Connected' ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
+          <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${connectionStatus === 'Connected' ? 'bg-emerald-400' : 'bg-red-400'}`} />
           {connectionStatus}
         </div>
       </div>
 
       {/* List */}
-      <div className="p-2 space-y-2 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
         {displayNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-zinc-500">
-                <Bell className="w-8 h-8 opacity-20 mb-2" />
-                <p className="text-sm">No notifications</p>
-            </div>
+          <div className="h-full flex flex-col items-center justify-center opacity-30">
+            <Bell className="w-12 h-12 mb-2" />
+            <p className="text-sm">No recent activity</p>
+          </div>
         ) : (
-            displayNotifications.map((notif, index) => (
-                <div key={notif.id || index} className="group flex gap-3 p-3 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
-                   <div className="mt-0.5 shrink-0">
-                      {notif.type === 'error' ? <AlertCircle className="w-4 h-4 text-red-400" /> : <CheckCircle2 className="w-4 h-4 text-blue-400" />}
-                   </div>
-                   <div className="flex flex-col gap-1 w-full">
-                      <p className="text-sm text-zinc-200">{notif.message}</p>
-                      <span className="text-[10px] text-zinc-500">
-                        {notif.createdAt ? new Date(notif.createdAt).toLocaleTimeString() : 'Just now'}
-                      </span>
-                   </div>
+          displayNotifications.map((notif) => (
+            <div 
+              key={notif.id}
+              onClick={() => handleAction(notif)}
+              className={`p-4 border-b border-white/5 transition-colors cursor-pointer group hover:bg-white/[0.02] ${
+                !notif.isRead ? 'bg-blue-500/[0.03]' : 'bg-transparent'
+              }`}
+            >
+              <div className="flex gap-3">
+                <div className="mt-1">
+                  {notif.type === 'error' ? (
+                    <AlertCircle className="w-4 h-4 text-red-400" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                  )}
                 </div>
-            ))
+                
+                <div className="flex-1">
+                  <p className={`text-sm mb-1 ${notif.isRead ? 'text-zinc-400' : 'text-zinc-100'}`}>
+                    {notif.message}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-zinc-500 font-mono">
+                      {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    
+                    {notif.link && (
+                      <span className="text-[10px] text-blue-400 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        GO TO LINK <ArrowRight className="w-3 h-3" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>
