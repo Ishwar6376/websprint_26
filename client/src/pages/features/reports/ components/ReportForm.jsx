@@ -76,7 +76,7 @@ export default function ReportForm({ userLocation, userAddress, onSubmitSuccess 
         }
       });
 
-      const geoHashId = geohash.encode(userLocation.lat, userLocation.lng, 7);
+      const geoHashId = geohash.encode(userLocation.lat, userLocation.lng, 6);
 
       const payload = {
           imageUrl: imageUrl,           

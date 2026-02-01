@@ -33,7 +33,6 @@ import TrackReport from "./pages/reports/track/TrackReports";
 import InfraAdmin from "./pages/administration/muncipal/infra/infra";
 import WasteAdmin from "./pages/administration/muncipal/waste/waste"
 import WasteStaffDashboard from "./pages/staff/waste/wasteStaff";
-import AssignTask from "@/pages/administration/muncipal/waste/assignTask"
 import InfraStaffDashboard from "./pages/staff/infra/infraStaff";
 import AssignInfraTask from "./pages/administration/muncipal/infra/assignInfraTask";
 import UserReportsDashboard from"./pages/reports/user/userReportDashboard";
@@ -46,8 +45,7 @@ import ElectricityAdmin from "./pages/administration/muncipal/electricity/electr
 import AssignElectricityTask from "./pages/administration/muncipal/electricity/assignTask";
 import FireAdmin from "./pages/administration/muncipal/fire/fire";
 import FireStaffDashboard from "./pages/staff/fire/firestaff";
-
-
+import AssignTask from "./pages/administration/muncipal/waste/assignTask";
 import NotificationFeed from "./components/NotificationFeed"
  
 
@@ -79,6 +77,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/assign/waste/:geoHash" element={<ProtectedRoute>
+          <AssignTask/>
+        </ProtectedRoute>} />
         <Route
           path="/complaint"
           element={

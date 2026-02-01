@@ -27,14 +27,12 @@ export default function WasteAdmin() {
   const [loading, setLoading] = useState(true);
   const [selectedZone, setSelectedZone] = useState(null);
   
-  // New State for Tabs inside a Zone View
-  const [activeTab, setActiveTab] = useState("current"); // current | assigned | resolved
+  const [activeTab, setActiveTab] = useState("current"); 
 
   useEffect(() => {
     const fetchZones = async () => {
       try {
         const res = await api.get("/api/municipal/waste/reports");
-        console.log(res)
         if (res.data && res.data.zones) {
           setZones(res.data.zones);
         } else {
@@ -58,18 +56,15 @@ export default function WasteAdmin() {
     "LOW": 3
   };
 
-  // 2. Filter and Sort Reports based on the selected Zone
   const { currentReports, assignedReports, resolvedReports } = useMemo(() => {
     if (!selectedZone) return { currentReports: [], assignedReports: [], resolvedReports: [] };
 
     const reports = selectedZone.reports || [];
 
-    // Filter buckets
     const current = reports.filter(r => r.status !== "RESOLVED" && r.status !== "ASSIGNED" && r.status !== "IN_PROGRESS");
     const assigned = reports.filter(r => r.status === "ASSIGNED" || r.status === "IN_PROGRESS");
     const resolved = reports.filter(r => r.status === "RESOLVED");
 
-    // Sorting Helper
     const sortByPriority = (list) => {
       return list.sort((a, b) => {
         const pA = priorityMap[a.severity] ?? 99;
@@ -86,7 +81,6 @@ export default function WasteAdmin() {
   }, [selectedZone]);
 
 
-  // Helper to get status color and icon
   const getStatusBadge = (status) => {
     switch (status) {
       case "RESOLVED":
@@ -110,7 +104,7 @@ export default function WasteAdmin() {
             onClick={() => {
                 if(selectedZone) {
                     setSelectedZone(null);
-                    setActiveTab("current"); // Reset tab on back
+                    setActiveTab("current"); 
                 } else {
                     navigate("/administration");
                 }
@@ -152,7 +146,7 @@ export default function WasteAdmin() {
                 Active Zones
               </h2>
               <p className="text-slate-500">
-                Localities grouped by 5km² Geohash clusters
+                Localities grouped by 1.2km² Geohash clusters
               </p>
             </div>
 
@@ -168,72 +162,88 @@ export default function WasteAdmin() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {zones.map((zone) => (
-                  <button
-                    key={zone.zoneId}
-                    onClick={() => setSelectedZone(zone)}
-                    className="group bg-white border border-slate-200 rounded-[2rem] p-6 text-left hover:shadow-xl hover:border-emerald-300 transition-all duration-300 relative overflow-hidden"
-                  >
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
-                        <MapPin className="w-7 h-7" />
-                      </div>
-                      {zone.criticalCount > 0 && (
-                        <span className="px-3 py-1 bg-rose-50 text-rose-600 border border-rose-100 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                          <AlertOctagon className="w-3 h-3" />{" "}
-                          {zone.criticalCount} Critical
-                        </span>
-                      )}
-                    </div>
+                {zones.map((zone) => {
+                  // --- CALCULATE BARS ---
+                  const reports = zone.reports || [];
+                  const total = reports.length || 1; 
 
-                    <h3 className="text-2xl font-black text-slate-900 mb-1">
-                      Zone {zone.zoneId.toUpperCase()}
-                    </h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
-                      Geohash: {zone.geohash}
-                    </p>
+                  // 1. Separate Resolved vs Pending
+                  const resolvedList = reports.filter(r => r.status === "RESOLVED");
+                  const pendingList = reports.filter(r => r.status !== "RESOLVED");
 
-                    {/* Progress Bar Style Stats */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-xs font-bold text-slate-600">
-                        <span>Total Reports</span>
-                        <span>{zone.totalReports}</span>
-                      </div>
-                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                        <div
-                          style={{
-                            width: `${(zone.criticalCount / zone.totalReports) * 100}%`,
-                          }}
-                          className="bg-rose-500 h-full"
-                        />
-                        <div
-                          style={{
-                            width: `${(zone.highCount / zone.totalReports) * 100}%`,
-                          }}
-                          className="bg-orange-400 h-full"
-                        />
-                        <div
-                          style={{
-                            width: `${(zone.clearedCount / zone.totalReports) * 100}%`,
-                          }}
-                          className="bg-emerald-500 h-full"
-                        />
-                      </div>
-                      <div className="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
-                        <span className="text-rose-500">
-                          {zone.criticalCount} Critical
-                        </span>
-                        <span className="text-emerald-500">
-                          {zone.clearedCount} Verified
-                        </span>
-                      </div>
-                    </div>
+                  // 2. Counts for Progress Bar
+                  const resolvedCount = resolvedList.length;
+                  
+                  // Pending broken down by severity
+                  const criticalCount = pendingList.filter(r => r.severity === "CRITICAL").length;
+                  const highCount = pendingList.filter(r => r.severity === "HIGH").length;
+                  const mediumCount = pendingList.filter(r => r.severity === "MEDIUM").length;
+                  const lowCount = pendingList.filter(r => r.severity === "LOW").length;
 
-                    <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-4 group-hover:translate-x-0 duration-300">
-                      <ChevronRight className="w-6 h-6 text-emerald-500" />
-                    </div>
-                  </button>
-                ))}
+                  return (
+                    <button
+                      key={zone.zoneId}
+                      onClick={() => setSelectedZone(zone)}
+                      className="group bg-white border border-slate-200 rounded-[2rem] p-6 text-left hover:shadow-xl hover:border-emerald-300 transition-all duration-300 relative overflow-hidden"
+                    >
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                          <MapPin className="w-7 h-7" />
+                        </div>
+                        {criticalCount > 0 && (
+                          <span className="px-3 py-1 bg-rose-50 text-rose-600 border border-rose-100 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                            <AlertOctagon className="w-3 h-3" />{" "}
+                            {criticalCount} Critical
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-2xl font-black text-slate-900 mb-1">
+                        Zone {zone.zoneId.toUpperCase()}
+                      </h3>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
+                        Geohash: {zone.geohash}
+                      </p>
+
+                      {/* --- MULTI-COLOR PROGRESS BAR --- */}
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-xs font-bold text-slate-600">
+                          <span>Total Reports</span>
+                          <span>{reports.length}</span>
+                        </div>
+                        
+                        <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
+                          {/* 1. Critical (Red) */}
+                          <div style={{ width: `${(criticalCount / total) * 100}%` }} className="bg-rose-500 h-full" />
+                          {/* 2. High (Orange) */}
+                          <div style={{ width: `${(highCount / total) * 100}%` }} className="bg-orange-500 h-full" />
+                          {/* 3. Medium (Yellow) */}
+                          <div style={{ width: `${(mediumCount / total) * 100}%` }} className="bg-yellow-400 h-full" />
+                          {/* 4. Low (Blue) */}
+                          <div style={{ width: `${(lowCount / total) * 100}%` }} className="bg-blue-400 h-full" />
+                          {/* 5. Resolved (Green) */}
+                          <div style={{ width: `${(resolvedCount / total) * 100}%` }} className="bg-emerald-500 h-full" />
+                        </div>
+
+                        <div className="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
+                          <span className="text-rose-500">
+                            {pendingList.length} Pending
+                          </span>
+                          <span className="text-emerald-500">
+                            {resolvedCount} Resolved
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* --- IMPROVED ARROW BUTTON --- */}
+                      <div className="absolute bottom-6 right-6">
+                        <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-all duration-300">
+                          <ChevronRight className="w-6 h-6" />
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </>
@@ -298,7 +308,6 @@ export default function WasteAdmin() {
             {/* REPORT LIST */}
             <div className="grid grid-cols-1 gap-4">
               
-              {/* Logic to determine which list to show */}
               {(() => {
                 let displayReports = [];
                 let emptyMessage = "";
@@ -387,12 +396,13 @@ export default function WasteAdmin() {
                                       title: `Fix: ${report.title || "Waste Issue"}`,
                                       description: `Original Report ID: ${report.id || report._id}\n\nAI Analysis: ${report.aiAnalysis}`,
                                       address: report.address,
-                                      priority: report.severity,
                                       imageUrl: report.imageUrl,
                                       department: "waste",
                                       reportGeohash: report.geohash,
                                       location: report.location,
-                                      reporterEmail: report.email
+                                      reporterEmail: report.email,
+                                      reporterUserId:report.userId,
+                                      severity:report.severity
                                     },
                                   },
                                 })

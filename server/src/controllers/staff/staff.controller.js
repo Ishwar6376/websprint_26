@@ -69,7 +69,7 @@ export const assignTask = async (req, res) => {
       title, description, priority, deadline, 
       assignedTo, assignedToName, zoneGeohash, location,
       reportId, email: reporterEmail, department,
-      reportGeohash,imageUrl
+      reportGeohash,imageUrl,severity,address,reporterUserId
     } = req.body;
     
     const assignedBy = req.auth?.payload?.sub || req.user?.sub; 
@@ -92,7 +92,11 @@ export const assignTask = async (req, res) => {
       reporterEmail: reporterEmail || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       imageUrl:imageUrl,
-      deadline: deadline ? admin.firestore.Timestamp.fromDate(new Date(deadline)) : null
+      deadline: deadline ? admin.firestore.Timestamp.fromDate(new Date(deadline)) : null,
+      severity,
+      address,
+      reporterUserId
+
     };
 
     const taskRef = await db.collection('tasks').add(newTask);

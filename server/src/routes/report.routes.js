@@ -30,7 +30,8 @@ router.put('/resolve',resolveReport)
 router.post('/fireReports', saveFireReport);                
 router.post('/updatefireReports', updateFireReports);  
 router.post('/saveFireReport',FireReport); 
-router.get('/FetchAdminFireHistory',FetchAdminFireHistory)  
+router.get('/FetchAdminFireHistory',FetchAdminFireHistory)
+  
 
 
 export default router
