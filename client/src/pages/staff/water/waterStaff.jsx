@@ -129,7 +129,7 @@ export default function WaterStaffDashboard() {
     const proofUrl = cloudData.secure_url;
 
     const token = await getAccessTokenSilently();
-    await api.post("/api/staff/tasks/resolve", 
+    await api.post("/api/staff/tasks/resolves", 
       { 
         taskId, 
         proofImageUrl: proofUrl 
