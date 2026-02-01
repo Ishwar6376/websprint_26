@@ -45,7 +45,7 @@ export default function MunicipalDeptHub() {
       title: "Waste Mgmt",
       description: "Garbage collection status, overflow reporting, and sanitization.",
       icon: Trash2,
-      route: "/administration/garbage", // Linking to your existing route if needed
+      route: "/administration/municipal/waste", // Linking to your existing route if needed
       theme: "emerald",
       stats: "Pending Pickup"
     },
